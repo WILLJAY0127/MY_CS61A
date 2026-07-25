@@ -1,0 +1,8 @@
+# Ignore macOS system files used to store folder metadata
+.DS_Store
+
+*.pyc
+
+*.ok_history
+*.ok_messages
+*.ok_storage
