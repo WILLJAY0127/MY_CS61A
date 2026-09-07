@@ -151,6 +151,8 @@ status: <complete / 待补哪阶段>
 - 交付为**真正的 .md 文件**(headers + fenced code blocks),不是纯文本聊天——"怎么没有 md 啊,我是给 obsidian 用的"
 - 文件名与 slides 文件名对齐:`Lec02 - Functions.md` ↔ `02-Functions_1pp.pdf`
 - 包含 **Java/设计模式桥梁**
+- **讲次笔记标题结构沿用 [`MY/Knowledge/Note_Template.md`](file:///MY/Knowledge/Note_Template.md)**(Lec01&02 验证版,2026-09-07 定稿):Skeleton(网络骨架)/ Evolution Path(因果升级,每层 Limitation 引出下层)/ Tension(贯穿张力)/ Pivot(枢纽)/ Review Cards。原 v1 模板段(上方)保留作历史参考,新笔记以 Note_Template.md 为准
+- **教材正文必读**:不能只读 PPT/字幕/教材标题就下结论——Lec01&02 翻过车,只读标题整理出的线性分层丢失了教材真正的 three means 骨架
 
 ---
 
