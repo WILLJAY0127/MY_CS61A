@@ -147,11 +147,11 @@ status: <complete / 待补哪阶段>
 
 - **层间桥梁优先,不堆砌孤立知识点**——Jace 最核心的偏好:"我不喜欢你这个……似乎在堆砌我介绍给你的知识点,没有整体的感觉,我需要的是整体知识网络架构的感觉"
 - 要有**叙事弧**:每个概念要回答"为什么会讲到这个",根因优先于特例
-- **"我的理解"段保留完整推导链**,不止结论——"这样子感觉还是有点模糊,就最后一句话,我已经忘了我们俩到底交流了什么"
+- **"我的理解"段用结论式**(2026-09-07 更新:Jace 明确要"易总结论式的东西",不要对话体)——洞察直接陈述+判据,不写"原话/推导/直觉→修正"过程叙述,不出现人名;来源只标 `MY/思维片段/` 文件路径
 - 交付为**真正的 .md 文件**(headers + fenced code blocks),不是纯文本聊天——"怎么没有 md 啊,我是给 obsidian 用的"
 - 文件名与 slides 文件名对齐:`Lec02 - Functions.md` ↔ `02-Functions_1pp.pdf`
 - 包含 **Java/设计模式桥梁**
-- **讲次笔记标题结构沿用 [`MY/Knowledge/Note_Template.md`](file:///MY/Knowledge/Note_Template.md)**(Lec01&02 验证版,2026-09-07 定稿):Skeleton(网络骨架)/ Evolution Path(因果升级,每层 Limitation 引出下层)/ Tension(贯穿张力)/ Pivot(枢纽)/ Review Cards。原 v1 模板段(上方)保留作历史参考,新笔记以 Note_Template.md 为准
+- **讲次笔记标题结构沿用 [`MY/Knowledge/Note_Template.md`](file:///MY/Knowledge/Note_Template.md)**(Lec01&02 验证版,2026-09-07 定稿):Core Question → 资料清单 → 主线推导(段落名按本讲知识实际走向定,矛盾引出下一段)→ 核心洞察(结论式)→ Java 桥梁 → 纠错与突破 → 相关概念 → 复习卡。原 v1 模板段(上方)保留作历史参考,新笔记以 Note_Template.md 为准
 - **教材正文必读**:不能只读 PPT/字幕/教材标题就下结论——Lec01&02 翻过车,只读标题整理出的线性分层丢失了教材真正的 three means 骨架
 
 ---

@@ -22,6 +22,8 @@
 | R8 | Lec01&02 | Environment 四次递进定义(1.2.4/1.2.5/1.3.1/1.3.2) | [[Lec01&02 - Welcome & Functions#R8]] | — | 2026-09-07 | 0 |
 | R9 | Lec01&02 | Combination vs Abstraction 判据(边界) | [[Lec01&02 - Welcome & Functions#R9]] | — | 2026-09-07 | 0 |
 | R10 | Lec01&02 | Skeleton: assignment vs def 本质区别 | [[Lec01&02 - Welcome & Functions#R10]] | — | 2026-09-07 | 0 |
+| R11 | Lec01&02 | intrinsic name vs bound name(f=max 后 max=5) | [[Lec01&02 - Welcome & Functions#R11]] | — | 2026-09-07 | 0 |
+| R12 | Lec01&02 | 为什么必须新建 local frame(屏蔽≠覆盖) | [[Lec01&02 - Welcome & Functions#R12]] | — | 2026-09-07 | 0 |
 
 ## 全量卡片池(按下次复习日期排序)
 
@@ -39,6 +41,8 @@
 | R8 | Lec01&02 | Environment 四次递进定义(1.2.4/1.2.5/1.3.1/1.3.2) | [[Lec01&02 - Welcome & Functions#R8]] | — | 2026-09-07 | 0 |
 | R9 | Lec01&02 | Combination vs Abstraction 判据(边界) | [[Lec01&02 - Welcome & Functions#R9]] | — | 2026-09-07 | 0 |
 | R10 | Lec01&02 | Skeleton: assignment vs def 本质区别 | [[Lec01&02 - Welcome & Functions#R10]] | — | 2026-09-07 | 0 |
+| R11 | Lec01&02 | intrinsic name vs bound name(f=max 后 max=5) | [[Lec01&02 - Welcome & Functions#R11]] | — | 2026-09-07 | 0 |
+| R12 | Lec01&02 | 为什么必须新建 local frame(屏蔽≠覆盖) | [[Lec01&02 - Welcome & Functions#R12]] | — | 2026-09-07 | 0 |
 
 ## 结果标记
 

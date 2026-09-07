@@ -12,7 +12,7 @@ status: complete
 
 - **PPT**: `assets/slides/01-Welcome_1pp.pdf`、`assets/slides/02-Functions_1pp.pdf`
 - **Video**: Lec02 · https://www.youtube.com/watch?v=gNv81_4X0uU&list=PL6BsET-8jgYULSxiV2garZ0FxbnXR08MP&index=1
-- **教材**(小节级,已读正文核实):
+- **教材**(小节级):
   - Ch. 1.1 Getting Started — `pages/11-getting-started.html`(1.1.1 / 1.1.3 / 1.1.4 / 1.1.5)
   - Ch. 1.2 Elements of Programming — `pages/12-elements-of-programming.html`(1.2.1-1.2.6)
   - Ch. 1.3 Defining New Functions — `pages/13-defining-new-functions.html`(1.3.1-1.3.4)
@@ -46,7 +46,7 @@ status: complete
 - **数字字面量** `42` —— 求值规则:值就是自身
 - **名字** `pi`、`add` —— 求值规则:去 environment 查 binding
 
-注意:名字绑的可以是 data,也可以是 function(`f = max`)。**这是 function vs data 张力的第一颗种子,在叶子层就埋下了。**
+注意:名字求值的结果不一定是 data——`add` 求值得到的是 function。**这是 function vs data 张力的第一颗种子,在叶子层就埋下了。**
 
 ### 第二步:call expression(组合方式)
 
@@ -60,7 +60,7 @@ status: complete
 
 教材给出 expression tree 的可视化——自底向上求值,叶子先算,根最后算。
 
-call expression 相比中缀的三个优势(教材 1.2.2 原文):① 任意参数数 `max(1,-2,3,-4)` ② 嵌套结构显式 `max(min(1,-2), min(pow(3,5),-4))` ③ 统一所有运算符为 named function。
+教材 1.2.2 给出函数记法相比中缀记法的**三个主要优势**:① 函数可接受**任意数量的参数** `max(1,-2,3,-4)`,且无歧义(函数名总在参数之前) ② **嵌套结构完全显式** `max(min(1,-2), min(pow(3,5),-4))`,嵌套深度无原则性限制 ③ 数学记法形式繁多(上标、分数线、根号),call expression 把一切统一为 **named function**(`any operator can be expressed as a function with a name`)。
 
 ### Expression 侧的矛盾
 
@@ -90,20 +90,22 @@ radius = 11
 area                          # 还是 314.159!不是 380.13
 ```
 
-教材原文:"Changing the value of one name does not affect other names."——因为 assignment 绑的是**值**,不是**关系**。
+教材原文:"Changing the value of one name does not affect other names."——改 radius 不会影响 area,要更新 area 只能再写一条 assignment。概括:assignment 绑的是**值**,不是**关系**。
 
 **多赋值** `x, y = 3, 4.5`:all right evaluated before any left bound → 一行交换 `y, x = x, y`。
 
-教材自己点明:assignment 是 "**simplest** means of abstraction"。**limited** 在哪?绑值不绑关系 → 不同步 → 改了 radius 想让 area 跟着走,assignment 做不到。
+教材自己点明:assignment 是 "**simplest** means of abstraction"。教材 1.2.4 只陈述现象,到此为止——def 并非为解决它而生(教材 1.3 的真实动机见下)。
 
 ### Abstraction 第二层:def(教材 1.3,powerful)
+
+**教材 1.3 引入 def 的真实动机**:给**计算过程**命名(square 抽象的是"任意数平方"这个模式)。教材 1.3 原文:"Function definitions are a much more powerful abstraction technique"——powerful 在于绑的是**整个运算流程**,不是某个值。def 本身不含数据,调用时提供实参,过程才执行。
 
 ```python
 def square(x):
     return mul(x, x)
 ```
 
-**def 与 assignment 本质同构**——教材 1.3 原文:"Both def statements and assignment statements bind names to values"。区别在 value 的粒度:assignment 绑数据值,def 绑**整个运算流程**(return expression 藏起来,调用时重算 → 解决不同步)。
+**def 与 assignment 本质同构**——教材 1.3 原文:"Both def statements and assignment statements bind names to values"。区别在 value 的粒度:assignment 绑**数据值**(314 这个数),def 绑**计算流程**(`mul(x, x)` 这套运算,藏起来等数据配合)。
 
 def 执行时(教材 1.3 原文 "return expression is **not evaluated right away**; it is **stored** as part of the newly defined function"):
 1. 创建新 function object(签名 = def 到冒号那行)
@@ -115,11 +117,25 @@ def 执行时(教材 1.3 原文 "return expression is **not evaluated right away
 2. 形参 bind 到实参值
 3. 在新 environment 里 execute 函数体
 
-每次调用都重算 → area 定义成函数就能跟着 radius 走。**def 是更强的 abstraction,正好解决 assignment 的不同步。**
+**为什么必须新建 local frame(嵌套调用不互相踩的硬需求)**:
+
+```python
+def outer(x):
+    return add(inner(100), x)   # 算完 inner 之后,还要用 x=1
+
+def inner(x):
+    return mul(x, 2)
+
+outer(1)
+```
+
+outer(1) 执行到一半,x=1 还没死;inner(100) 也要一个叫 x 的名字。如果共用 global frame,x 绑 1 还是 100?**所以不能共用一张绑定表——每次调用各建一个独立 frame。**
+
+注意:**"屏蔽"不是"覆盖"**。inner(100) 算完后,inner 的 local frame 直接**销毁**,outer 的 x=1 从头到尾没被动过——它一直待在 outer 自己的帧里。不是"改了再改回来",而是两个 x 从出生就住在不同的帧里。global frame 唯一,local frame 每次调用临时出生、用完销毁。
 
 ### Statement 侧的矛盾
 
-函数体执行时,内部用什么 environment 查名字?形参名 `square` 和全局函数名 `square` 冲突怎么办?`f = max` 之后 `max = 5` 再调用 `max(2,3,4)` 为什么报错,但 `f(2,3,4)` 还能用?
+形参名 `square` 和全局函数名 `square` 冲突怎么办?`f = max` 之后 `max = 5` 再调用 `max(2,3,4)` 为什么报错,但 `f(2,3,4)` 还能用?
 
 → 教材 1.3.1 被迫给出 **environment 的精确定义**。
 
@@ -202,7 +218,7 @@ function 有 intrinsic name(函数自身名)和 bound name(帧里绑的名)。`f
 - Combination:中缀表达式、call expression、嵌套、`import`
 - Abstraction:assignment(limited)→ def(powerful)
 
-但教材 1.3 结尾用 **"some of"** 预留口子——"We have identified in Python **some of** the elements that must appear in any powerful programming language"。这是阶段性小结,不是全集。后续会引入 boolean、sequence、object、control flow 等更多 primitive、combination、abstraction 手段。
+但教材用 **"some of"** 预留口子——1.3 开篇(承接 1.2 的小结)写道:"We have identified in Python **some of** the elements that must appear in any powerful programming language"。这是阶段性小结,不是全集。后续会引入 boolean、sequence、object、control flow 等更多 primitive、combination、abstraction 手段。
 
 **终极预告**(教材 1.1.4 结尾):"functions are objects, objects are functions, and interpreters are instances of both"——整本书都在论证 function、data、object、interpreter 的最终统一。本讲已经埋下种子:
 - `f = max` —— function 像 data 一样是 value,可绑名字
@@ -213,39 +229,39 @@ function 有 intrinsic name(函数自身名)和 bound name(帧里绑的名)。`f
 
 ---
 
-## 我的理解(Jace 推导链,保留原话)
+## 核心洞察(结论式)
 
 > 来源:`MY/思维片段/Week1&2/`。闭包/一等公民/语言流派对比属 Lec04-05,不收进本讲。
 
-**1. 组合 ≠ 抽象(边界判据)**
+**1. 组合 ≠ 抽象**
 
-Jace 原话:"组合方式是一种内部构建,抽象是一种外部命名么?""我觉得组合就抽象了""组合就是用表达式和语句来操作某某东西,这是基本。然后抽象就是对于某些需要的东西进行隔离,划定边界,进而才能进行复用"
-
-推导:直觉"拼起来=抽象" → 修正为"组合是拼装,抽象是拼装后**加边界、隐藏细节**"。判据:**修改内部实现,外部调用代码要不要改?** 要改=没抽象,不改=有抽象。
+组合是拼装;抽象是拼装后**加边界、隐藏细节**。判据:**修改内部实现,外部调用代码要不要改**——要改=没抽象,不改=有抽象。
 
 **2. 叶子 ≠ 只是数字**
 
-Jace 原话:"如何区分一个节点是不是最终不可求节点,是判断一个表达式的表达数是不是真正的数字吧"
+叶子有两类:数字字面量**和名字(标识符)**。`add`、`pow` 这类函数名也是叶子,它绑定的值是函数对象。口诀:看见 `xxx(...)` 是内部节点,其余都是叶子。
 
-推导:以为叶子=数字 → 修正为叶子有两类(数字字面量**和名字**)。`add`、`pow` 这种 function name 也是 leaf,绑的值是 function object。口诀:看见 `xxx(...)` 就是 internal node,其余都是 leaf。
+**3. 环境的根本作用是赋予含义**
 
-**3. 环境根本作用是赋予含义**
+环境给标识符赋予含义(脱离环境,`add(x,1)` 毫无意义);每次调用新建独立帧带来的**隔离只是衍生能力**,不是环境的定义。
 
-Jace 原话:"环境似乎也是抽象隔离的一种?"
+**4. "some of" 是阶段小结,不是全集**
 
-推导:洞见 environment 的隔离性(每次调用新建独立 local frame)→ 自己修正:environment 最根本是**给标识符赋予含义**(脱离环境 `add(x,1)` 毫无意义),隔离只是衍生能力。这条直接对接教材 1.2.5 和 1.3.1。
-
-**4. 作者用 "some of" 预留口子**
-
-Jace 原话:"组合方式有很多。抽象方式有很多 基本元素应该也不止他说的这些"
-
-推导:觉得教材列的要素不全 → 理解原文 "some of" 是阶段性小结,不是全集。后续会引入 boolean、sequence、object、control flow。
+教材 1.3 结尾 "We have identified in Python **some of** the elements" 预留了口子——后续会引入 boolean、sequence、object、control flow 等更多 primitive/combination/abstraction 手段。
 
 **5. Python 是"通用通道"流派**
 
-Jace 原话:"我现在觉得 py 在故意混淆俩个东西,如果我设计一个新的语句定义,我是不是就能给函数作为入参和数据作为入参给剥离开了"
+Python/JS/Scheme 用同一套语法通道承载 data 和 function 两种语义;C/Java 选隔离通道(编译期检查、啰嗦但安全)。这是语言设计的主动取舍,对接 Lec04 HOF 和 Lec29 Scheme。
 
-推导:感觉 Python 用同一套语法通道承载 data 和 function 两种语义 → 理解这是语言设计主动取舍(Python/JS/Scheme 选通用通道,C/Java 选隔离通道)。这条对接 Lec04 HOF 和 Lec29 Scheme。
+**6. def 是"小的 global 域",独立 frame 是硬需求**
+
+函数调用和 global 环境本质同类:都是 frame,都是 name→value 绑定表。函数内部的绑定(形参、中间计算)不该外泄,且嵌套调用时各自要用同名——**不能共用一张绑定表,否则互相踩**,所以每次调用各建独立 frame。
+
+精确点:**"屏蔽"≠"覆盖"**——inner 算完后它的帧直接销毁,outer 的 x 从头到尾没被动过,两个 x 从出生就住在不同的帧里。
+
+**7. def 抽象的是计算过程,assignment 绑定的是数据值**
+
+def 绑的是运算流程(如 `mul(x, x)`),本身无数据,调用时提供实参配合才执行;assignment 绑的是具体的值。这就是 def 比 assignment "more powerful" 的实质:**绑定的粒度不同(过程 vs 值)**。
 
 ---
 
@@ -263,13 +279,15 @@ Jace 原话:"我现在觉得 py 在故意混淆俩个东西,如果我设计一�
 
 ## 纠错与突破
 
-**误区1:组合 = 抽象** —— 组合只是拼装,抽象是拼装后加边界隐藏细节。判据:改内部实现,外部要不要改。来源:Jace `1.md`、`想法3.md`
+**误区1:组合 = 抽象** —— 组合只是拼装,抽象是拼装后加边界隐藏细节。判据:改内部实现,外部要不要改。(来源:`MY/思维片段/1.md`、`想法3.md`)
 
-**误区2:叶子 = 数字** —— 叶子有两类:数字字面量和名字。function name 也是 leaf。来源:Jace `1.2.5.md`
+**误区2:叶子 = 数字** —— 叶子有两类:数字字面量和名字。函数名也是叶子。(来源:`MY/思维片段/1.2.5.md`)
 
-**误区3:作者在穷举语言要素** —— 原文 "some of",是阶段性小结。来源:Jace `1.3.md`
+**误区3:教材在穷举语言要素** —— 原文 "some of" 表明这是阶段性小结,不是全集。(来源:`MY/思维片段/1.3.md`)
 
-**突破** —— Jace 自己推导出的"修改内部实现,外部要不要改"这条抽象判据,比教材讲得更准。直接对应 Lec04 function design 和后续所有 design pattern 的"依赖倒置"。
+**误区4:def 为解决 radius/area 不同步而生** —— 教材 1.2.4 只陈述现象,未定性为痛点;1.3 引入 def 的动机是给计算过程命名。把两者串成因果链是过度解读。
+
+**突破** —— "修改内部实现,外部要不要改"这条抽象判据比教材表述更直白,直接对接 Lec04 function design 和后续设计模式的"依赖倒置"。
 
 ---
 
@@ -332,11 +350,16 @@ Expression:evaluate(求值),产出 value。例:`42`、`pi`、`max(2,3)`。Statem
 </details>
 
 ### R10 assignment vs def
-<details><summary>两者都属于 abstraction means,本质区别?为什么 def 是 powerful 而 assignment 是 limited?</summary>
-都 bind name to value,本质同构(教材 1.3 原文)。区别在 value 的粒度:assignment 绑的是**数据值**(limited,绑值不绑关系→不同步);def 绑的是**整个运算流程**(powerful,return expression 藏起来,调用时重算→解决不同步)。def 解决了 assignment 的局限。
+<details><summary>两者都属于 abstraction means,本质区别?def 的 "powerful" 在哪?</summary>
+都 bind name to value,本质同构(教材 1.3 原文)。区别在 value 的粒度:assignment 绑**数据值**(一个具体的数);def 绑**计算过程**(无数据,调用时提供实参配合才执行)。教材 1.3 引入 def 的动机是给计算过程命名(square 抽象"任意数平方"这个模式),不是解决 radius/area 不同步——教材并未建立这条因果链。
 </details>
 
 ### R11 intrinsic name vs bound name
 <details><summary>`f = max; max = 5; f(2,3,4)` 为什么还能调用原 max?</summary>
 function 有 intrinsic name(函数自身名)和 bound name(帧里绑的名)。f 和 max 是两个 bound name 指向同一 function object。max = 5 后 max 这个 bound name 重绑到 5,但 f 还指着原来的 function object。intrinsic name 不参与求值(查找时用 bound name),所以 f(2,3,4) 还能调用原 max,max(1,2) 报错 "int object is not callable"。
+</details>
+
+### R12 为什么必须新建 local frame
+<details><summary>outer(1) 执行到一半(还需要 x=1),此时开始算 inner(100)(也需要叫 x)。如果共用 global frame 会怎样?"屏蔽"和"覆盖"的区别是什么?</summary>
+共用一张绑定表则互相踩:x 绑 1 还是 100 没法同时满足,outer 算第二个 operand 时拿到的是被 inner 覆盖后的值。所以每次调用各建独立 frame。"屏蔽"不是"覆盖":inner 算完后它的 local frame 直接销毁,outer 的 x=1 从头到尾没被动过——两个 x 从出生就住在不同的帧里。global frame 唯一,local frame 临时出生、用完销毁。
 </details>
