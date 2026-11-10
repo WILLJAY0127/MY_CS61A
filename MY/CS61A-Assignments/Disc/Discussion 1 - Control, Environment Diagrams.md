@@ -156,7 +156,34 @@ def fizzbuzz(n):
 
 Hint 点睛：先判 15，再判 3 / 5，别让 15 被第一个分支吃掉。
 
-（解法等你做完再补）
+### 参考答案
+
+```python
+def fizzbuzz(n):
+    i = 1
+    while i <= n:
+        if i % 15 == 0:
+            print('fizzbuzz')
+        elif i % 3 == 0:
+            print('fizz')
+        elif i % 5 == 0:
+            print('buzz')
+        else:
+            print(i)
+        i += 1
+```
+
+**要点**
+
+- `i % 15 == 0` 等价于「同时被 3 和 5 整除」，必须写在最前面，否则 15 会先被 `i % 3` 吃掉。
+- 用 `elif` 而不是一串 `if`，保证每个 `i` 只打印一行。
+- 函数没有 `return`，隐式返回 `None`，所以 doctest 里 `print(result)` 输出 `None`。
+
+**考点**
+
+- 多分支 `if / elif` 的**判断顺序**：条件最「特殊」的分支必须放最前面（15 在 3 和 5 之前），否则会被更宽的 `i % 3` 抢先命中。
+- `n % k == 0` 是判断整除的固定写法，`%` 不改变 `n` 本身。
+- 区分「打印型函数」和「返回型函数」：`fizzbuzz` 只 `print`、无 `return`，所以调用结果是 `None`——这是考试里最常挖的坑。
 
 ---
 
@@ -220,7 +247,34 @@ def is_prime(n):
 
 Hint 点睛：`1` 不是质数；while 从 `i = 2` 开始，只要 `n % i == 0` 就 return False。
 
-（解法等你做完再补）
+### 参考答案
+
+```python
+def is_prime(n):
+    if n == 1:
+        return False
+    i = 2
+    while i < n:
+        if n % i == 0:
+            return False
+        i += 1
+    return True
+```
+
+**一句话描述**：从 2 开始试到 `n - 1`，只要发现一个能整除 `n` 的数就说明 `n` 不是质数，全试完都没找到则是质数。
+
+**要点**
+
+- `i < n` 只试到 `n - 1`，因为 `n % n` 恒为 0；写 `i <= n` 会把所有数都判成非质数。
+- `n == 1` 必须单独排除（`1` 既不是质数也没有因数）。
+- 循环结束仍没 `return False`，说明没找到因数，返回 `True`。
+
+**考点**
+
+- `while` 里**提前 return** 是「找到答案就退出」的标准模式，比设 `is_prime = True` 标志位再在循环外判断更简洁。
+- 循环边界 `i < n` 而非 `i <= n`：多走一步就会用 `n` 去除自己，所有数全被判成非质数。
+- 边界值要单独处理：`1` 不满足 while 条件（`2 < 1` 为假），如果不提前 return，会错误地返回 `True`。
+- 「循环正常走完」和「循环中途 return」是两种不同出口，写循环题先问自己：答案出现在中途还是结尾？
 
 ---
 
@@ -268,7 +322,47 @@ def has_digit(n, k):
 
 Hint 点睛：两道题——`unique_digits` 调 `has_digit`；`has_digit` 用 `n % 10` + `n // 10` 拆数字。toggle Hint 直接遍历 0–9 更简单。
 
-（解法等你做完再补）
+### 参考答案
+
+```python
+def unique_digits(n):
+    count = 0
+    i = 0
+    while i < 10:
+        if has_digit(n, i):
+            count += 1
+        i += 1
+    return count
+
+def has_digit(n, k):
+    assert k >= 0 and k < 10
+    while n > 0:
+        if n % 10 == k:
+            return True
+        n = n // 10
+    return False
+```
+
+**要点**
+
+- `has_digit`：`n % 10` 取末位比较，`n // 10` 砍掉末位，直到 `n` 变成 0。
+- `unique_digits`：对 0–9 每个数字问一次「`n` 里有吗」，有就 `count += 1`，天然避免重复计数。
+- 换布尔标记写法也行：`while n > 0: if ...: return True`，逻辑等价于「找到就提前退出」。
+
+**考点**
+
+- 十进制拆位三件套：`n % 10` 取末位、`n // 10` 砍末位、`n > 0` 作循环条件——这是所有「按位处理整数」题目的通用骨架。
+- **问题转化**：「数有几个不同的数字」不好直接做，转成「对 0–9 逐个问它在不在」就变成简单计数，天然免疫重复计数。
+- 函数间调用：`unique_digits` 依赖 `has_digit`，把「判断」和「计数」拆成两个函数，职责单一也方便单独测试。
+- 拆位循环会**破坏原数**（`n = n // 10`），所以只能拿函数参数 `n` 来改，不能用它继续做别的事。
+
+**验证**
+
+```
+unique_digits(8675309) → 7
+unique_digits(13173131) → 3
+unique_digits(101) → 2
+```
 
 ---
 
