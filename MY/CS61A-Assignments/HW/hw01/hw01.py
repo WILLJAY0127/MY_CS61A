@@ -1,3 +1,4 @@
+from ast import While
 from operator import add, sub
 
 def a_plus_abs_b(a, b):
@@ -13,9 +14,9 @@ def a_plus_abs_b(a, b):
     3
     """
     if b < 0:
-        f = _____
+        f = sub
     else:
-        f = _____
+        f = add
     return f(a, b)
 
 def a_plus_abs_b_syntax_check():
@@ -42,7 +43,7 @@ def two_of_three(i, j, k):
     >>> two_of_three(5, 5, 5)
     50
     """
-    return _____
+    return i*i + j*j + k*k - max(i*i ,j*j,k*k)
 
 def two_of_three_syntax_check():
     """Check that your two_of_three code consists of nothing but a return statement.
@@ -66,6 +67,10 @@ def largest_factor(n):
     1
     """
     "*** YOUR CODE HERE ***"
+    x = n - 1
+    while n % x != 0:
+        x = x -1
+    return x
 
 
 def hailstone(n):
@@ -88,4 +93,15 @@ def hailstone(n):
     1
     """
     "*** YOUR CODE HERE ***"
+    count = 0
+    while n != 1:
+        print(n)
+        count = count + 1
+        if n % 2 == 0:
+            n = n // 2
+        else:
+            n = n *3 + 1
+    print(n)
+    count = count + 1
+    return count
 
