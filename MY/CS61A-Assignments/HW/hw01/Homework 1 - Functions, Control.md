@@ -4,11 +4,29 @@ title: Functions, Control
 status: complete
 ---
 
-# Homework 1 · Functions, Control
+# Homework 1: Functions, Control
 
 > **原始题目**: `SOURCE/CS61A-Website-Archive/hw/hw01/index.html`
 >
 > **官方解答参考**: `SOURCE/CS61A-Website-Archive/sol-hw01/`（仅作映射，不作为结构来源）
+
+---
+
+## 总起
+
+**一句话定位**：Homework 1 把 Lec01–03 的函数、表达式和循环收口到 4 道题上，重点不是算出结果，而是「用什么样的表达式结构算对」。
+
+**覆盖知识点**
+
+- 函数是一等值：`f = sub` 绑定的是函数对象本身，不是调用后的结果
+- 纯表达式组合：Q2 受「只能一条 return」约束，用 `max` 做减法代替 `if` 选择
+- `while` 循环：条件方向、循环不变式、循环变量更新
+- 整除与取余：`n % x == 0` 判因数，`//` 保证结果是整数
+- 副作用 vs 返回值：`hailstone` 同时 print 和 return，终止值也不能漏
+
+**题目地图**：Q1 A Plus Abs B｜Q2 Two of Three｜Q3 Largest Factor｜Q4 Hailstone
+
+**对应讲义**：Lec01&02 · Functions ＋ Lec03 · Control
 
 ---
 

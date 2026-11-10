@@ -4,9 +4,26 @@ title: Getting Started
 status: complete
 ---
 
-# Discussion 0 · Getting Started
+# Discussion 0: Getting Started
 
 > **原始题目**: `SOURCE/CS61A-Website-Archive/disc/disc00/index.html`
+
+---
+
+## 总起
+
+**一句话定位**：讨论课 0 唯一有自学价值的 Part 2——只用 `f` / `g` / `h` 和数字 5 拼出最短表达式，结果等于 2024。
+
+**覆盖知识点**
+
+- call expression 的嵌套：每个 `f` / `g` / `h` 调用都是一个 call expression，自底向上求值
+- primitive expression 与复合表达式：`5` 是叶子，`h(g(g(5)), ...)` 是内部节点
+- 函数作为 building block：把 `f` / `g` / `h` 当作最小积木，组合出任意目标数
+- 逆向分解：从目标 2024 往回拆，而不是从 5 正向枚举
+
+**题目地图**：Part 2「5 拼 2024」（Part 0 / 1 / 3 是破冰和行政流程，已剔除）
+
+**对应讲义**：Lec01&02 · Functions, Control
 
 ---
 

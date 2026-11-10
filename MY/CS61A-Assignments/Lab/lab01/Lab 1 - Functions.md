@@ -1,14 +1,33 @@
 ---
 lab: 01
-title: Control
+title: Functions
 status: in_progress
 ---
 
-# Lab 1 · Control
+# Lab 1: Functions
 
 > **原始题目**: `SOURCE/CS61A-Website-Archive/lab/lab01/index.html`
 >
 > **官方解答参考**: `SOURCE/CS61A-Website-Archive/lab/sol-lab01/index.html`（仅作映射，不作为结构来源）
+
+---
+
+## 总起
+
+**一句话定位**：Lab 1 从「函数怎么写」推进到「函数怎么返回、怎么调试、怎么用一行表达式解决组合问题」。
+
+**覆盖知识点**
+
+- return vs print：return 终止函数并产出值，print 是副作用且不终止函数
+- call expression 求值顺序：先 evaluate 所有 operand，再 apply operator
+- 调试工具：traceback 阅读、doctest 写法、`ok -i` / `--trace`、`DEBUG:` 前缀
+- 数字位提取：`n // 10^k % 10` 的标准模式
+- 补集思维：总和减最大减最小求中间值
+- 函数复用与循环（可选 Q6 falling factorial）
+
+**题目地图**：Q1 WWPD｜Q2 Debugging Quiz｜Q3 digit｜Q4 middle｜Q5 Syllabus Quiz｜Q6 falling（Optional）
+
+**对应讲义**：Lec01&02 · Functions ＋ Lec03 · Control
 
 ---
 

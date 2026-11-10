@@ -4,9 +4,27 @@ title: Getting Started
 status: complete
 ---
 
-# Lab 0 · Getting Started
+# Lab 0: Getting Started
 
 > **原始题目**: `SOURCE/CS61A-Website-Archive/lab/lab00/index.html`
+
+---
+
+## 总起
+
+**一句话定位**：Lab 0 是环境搭建课，核心只有一件事——分清 expression 和 statement，以及 assignment 是怎么改环境的。
+
+**覆盖知识点**
+
+- expression vs statement：一个走 evaluate 产出值，一个走 execute 改变环境
+- assignment 两条规则：先算右边再绑左边；绑值不绑关系
+- primitive expression 与算术表达式：`2024`、`2 * 1000 + 24` 的求值方式
+- 函数定义与返回值：`twenty_twenty_four()` 的 return
+- 工具链：`python ok` 各参数、`python -i`、`python -m doctest`
+
+**题目地图**：WWPD 4 小问｜`twenty_twenty_four()`｜Running Tests
+
+**对应讲义**：Lec01&02 · Functions, Control
 
 ---
 
