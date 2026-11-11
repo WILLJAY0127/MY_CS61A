@@ -349,9 +349,21 @@ def has_digit(n, k):
 - `unique_digits`：对 0–9 每个数字问一次「`n` 里有吗」，有就 `count += 1`，天然避免重复计数。
 - 换布尔标记写法也行：`while n > 0: if ...: return True`，逻辑等价于「找到就提前退出」。
 
+**拆数字的三件套**
+
+| 写法 | 作用 |
+|---|---|
+| `n % 10` | 取末位：`8675309 % 10 = 9` |
+| `n // 10` | 砍掉末位：`8675309 // 10 = 867530` |
+| `n > 0` | 循环条件，砍到 0 就停 |
+
+`n = 8675309` 反复执行 `n = n // 10`，每次取的末位依次是 `9 → 0 → 3 → 5 → 7 → 6 → 8`，正好覆盖每一位。
+
+注意循环条件不能写 `n >= 0`：`0 // 10` 仍是 `0`，会死循环。
+
 **考点**
 
-- 十进制拆位三件套：`n % 10` 取末位、`n // 10` 砍末位、`n > 0` 作循环条件——这是所有「按位处理整数」题目的通用骨架。
+- 十进制拆位三件套是所有「按位处理整数」题目的通用骨架。
 - **问题转化**：「数有几个不同的数字」不好直接做，转成「对 0–9 逐个问它在不在」就变成简单计数，天然免疫重复计数。
 - 函数间调用：`unique_digits` 依赖 `has_digit`，把「判断」和「计数」拆成两个函数，职责单一也方便单独测试。
 - 拆位循环会**破坏原数**（`n = n // 10`），所以只能拿函数参数 `n` 来改，不能用它继续做别的事。
@@ -409,13 +421,51 @@ bottles = remaining
 
 PythonTutor 链接：[在代码里直接看](https://pythontutor.com/iframe-embed.html#code=bottles+%3D+99%0Atake+%3D+1%0A%0Adef+pass_it%28around%29%3A%0A++++bottles+%3D+98%0A++++return+take%0A%0Aremaining+%3D+bottles+-+pass_it%28bottles%29%0Abottles+%3D+remaining%0A&codeDivHeight=460&codeDivWidth=350&cumulative=true&curInstr=1&heapPrimitives=nevernest&origin=composingprograms.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false)
 
+**执行过程**
+
+前三行定义完后，全局 frame：
+
+```
+Global frame
+  bottles → 99
+  take    → 1
+  pass_it → func pass_it(around) [parent=Global]
+```
+
+`remaining = bottles - pass_it(bottles)` 要求值两边：
+
+1. 左边 `bottles` → 查全局 → 99
+2. 右边 `pass_it(bottles)` → **新建 pass_it frame**：
+
+```
+pass_it frame（parent: Global）
+  around  → 99          ← 参数绑定
+  bottles → 98          ← 局部名字，与全局的 bottles 无关
+```
+
+`return take`：本 frame 没有 `take`，沿 parent 向上找 → 全局 `take = 1` → 返回 1，frame 随即销毁。
+
+3. `remaining = 99 - 1 = 98` → 全局 `remaining → 98`
+4. `bottles = remaining` → 全局 `bottles → 98`
+
 **答案**
 
-- **Q5.1 d)** frame 数量 = 自定义函数被调用的次数
-- **Q5.2 a)** `pass_it(...)` 返回 1，`99 - 1 = 98` 赋给全局 `remaining`
-- **Q5.3 c)** 函数内 `bottles = 98` 只影响 pass_it frame，全局 bottles 仍是 99
+- **Q5.1 d)** frame 数量 = 自定义函数被调用的次数。定义了 1 个函数却产生 2 个 frame；call expression 是**代码里写了几个调用**，与实际调用次数不是一回事。
+- **Q5.2 a)** 返回的 1 参与 `99 - 1`，最终成为全局 `remaining` 的值。注意题目问的是**返回值的去向**（happen **to**），不是返回那一刻发生了什么。
+- **Q5.3 c)** 函数内 `bottles = 98` 创建的是 pass_it frame 里的**局部名字**，全局 `bottles` 全程没被碰过。
 
-（详解见原文）
+**易错点**
+
+- 把 `bottles = 98` 当成改了全局 → 会算成 `remaining = 98 - 1 = 97`，全错。
+- 选 Q5.3 的 a「临时修改」：错在它连临时修改都没有，局部名字从创建起就是独立绑定。
+- 忽略 `return take` 的名字查找：本 frame 找不到就往 parent 找，最终拿到全局的 1。
+
+**考点**
+
+- **frame 的创建与销毁**：每调用一次自定义函数就新建一个 frame，`return` 后销毁；frame 数量 = 调用次数，与函数定义数、return 语句数无关。
+- **函数内赋值只建局部名**：函数体里的 `x = ...` 在当前 frame 里绑定新名字，同名全局变量完全不受影响。
+- **名字查找沿 parent 向上**：`return take` 在本 frame 找不到 `take`，就沿 parent 箭头到全局去找。
+- **环境图的三要素**：frame（方框）、名字-值绑定（框内条目）、parent 指针（向上箭头）。
 
 ---
 
@@ -438,13 +488,62 @@ double = triple
 
 PythonTutor 链接：[在代码里直接看](https://pythontutor.com/iframe-embed.html#code=def+double%28x%29%3A%0A++++return+x+%2A+2%0A%0Adef+triple%28x%29%3A%0A++++return+x+%2A+3%0A%0Ahat+%3D+double%0Adouble+%3D+triple%0A&codeDivHeight=460&codeDivWidth=350&cumulative=true&curInstr=1&heapPrimitives=nevernest&origin=composingprograms.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false)
 
-**结果**
+**逐步画图**
+
+这段代码**没有任何函数调用**，所以整张图只有 1 个 frame（全局）——正是 Q5.1 结论的直接应用：frame 数 = 调用次数 = 0。
+
+`def double(x):` → 创建函数对象并绑定名字：
 
 ```
-Global frame:
-  double → function triple
-  triple → function triple
-  hat    → function double
+Global frame
+  double → func double(x) [parent=Global]
 ```
 
-关键点：`hat = double` 绑的是当时的值（function double 对象），之后 `double = triple` 只重新绑名字，不影响 hat 的绑定。`hat(3)` = 6，`double(3)` = 9。
+`def triple(x):` → 同理：
+
+```
+Global frame
+  double → func double(x) [parent=Global]
+  triple → func triple(x) [parent=Global]
+```
+
+`hat = double` → 先求右边：查全局得到**函数对象本身** → 绑定给 `hat`。此时 `hat` 与 `double` 指向同一个对象：
+
+```
+Global frame
+  double → func double(x) ─┐
+  hat    → ────────────────┘   （同一个对象，两个箭头）
+  triple → func triple(x)
+```
+
+`double = triple` → 求右边得 triple 对象，把名字 `double` 重新绑过去：
+
+```
+Global frame
+  double → func triple(x) ─┐
+  triple → func triple(x) ─┘   （同一个对象）
+  hat    → func double(x)      （仍是原对象，没被影响）
+```
+
+**验证**
+
+| 调用 | 实际执行 | 结果 |
+|---|---|---|
+| `double(3)` | func triple | 9 |
+| `triple(3)` | func triple | 9 |
+| `hat(3)` | func double | 6 |
+
+**易错点**
+
+- 画成「`hat` 指向 `double` 这个名字」→ 错。`hat` 的箭头直接指向函数对象，中间不经过名字，所以改 `double` 的绑定时 `hat` 纹丝不动。
+- 误以为 `double = triple` 让 `hat` 也跟着变 → `hat(3)` 会算成 9，实际是 6。
+- 数错 frame 个数 → 这段没有调用，只有全局 frame。
+
+**类比**：`hat = double; double = triple` 和 `b = a; a = 7`（`b` 仍是旧值）是同一机制，只是值从整数换成了函数对象——**绑值，不绑关系**。
+
+**考点**
+
+- **函数是一等值**：`def` 创建函数对象并绑到名字上，函数对象可以像数字一样赋给别的名字、作为参数传递。
+- **赋值绑的是对象，不是名字**：`hat = double` 让 `hat` 直接指向函数对象；之后重新绑定 `double` 不影响 `hat`——没有「别名跟随」这回事。
+- **两类箭头不能混**：名字 → 对象的绑定箭头（可随时改指向），函数对象 → 定义环境的 parent 箭头（`def` 时确定，不再改变）。
+- **没有调用就没有新 frame**：整段代码只有全局一个 frame，画图时别凭「有几个函数」去数 frame。
