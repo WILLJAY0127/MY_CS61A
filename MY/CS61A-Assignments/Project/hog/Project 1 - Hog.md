@@ -1029,19 +1029,36 @@ def make_averaged(original_function, times_called=1000):
     # END PROBLEM 8
 ```
 
-**Ok 验证**：`python3 ok -q 08 -u` → `python3 ok -q 08`
+**Ok 验证**：`python3 ok -q 08 -u` → `python3 ok -q 08` → **7/7 通过**
 
-**逐步思路**
+**解锁验证**
+
+| Case | 问题 | 答案 | 你的第一选 |
+|---|---|---|---|
+| Suite 1-1 | make_averaged 为什么是高阶函数？ | **2) 它接收一个函数作为参数** | ✅ 直接对 |
+| Suite 1-2 | 传入的函数有几个参数？ | **0) 任意数量，所以用 `*args`** | ❌ 先选 2，再改 0 |
+| Suite 2-1 | `make_averaged(dice, 1000)()` → `dice(3,1,5,6)` 跑 1000 次的平均？ | **3.75**（4 个数循环，每个出现 250 次，总和=3×250+1×250+5×250+6×250=3750，/1000=3.75） | ❌ 先猜 7.5，再对 |
+| Suite 2-2 | `make_averaged(roll_dice, 1000)(2, dice)` → 扔 2 颗骰子的平均？ | **6.0**（两个骰子时如果有 1 会触发 Sow Sad，得分 1；没 1 时 3+1=4、3+5=8、3+6=9、1+?=1、5+1=1、5+6=11、6+1=1、6+5=11、6+3=9、1+?=1。手动算期望值复杂，但测试结果是 6.0） | ❌ 先猜 7.5，再对 |
+
+**答案代码**
 
 ```python
 def make_averaged(original_function, times_called=1000):
-    def averaged(*args):
+    def averaged_dice(*args):
         total = 0
         for _ in range(times_called):
             total += original_function(*args)
         return total / times_called
-    return averaged
+    return averaged_dice
 ```
+
+**逐步思路**
+
+1. 外层闭包捕获两个变量：`original_function` 和 `times_called`（默认 1000）
+2. 内层函数用 `*args` 兜住任意参数数量——这样 make_averaged 就能包装任意签名的函数
+3. 循环 `times_called` 次，每次 `original_function(*args)` 调（注意 `*args` 解包，不是直接传元组）
+4. 返回 `total / times_called`（Python 3 `/` 自动浮点除法）
+5. 最外层 `return averaged_dice`（**不加括号**，返回函数对象不是调用结果）
 
 **doctest 解读**（官网 walkthrough 里的 `averaged_dice(1, dice)`）
 
