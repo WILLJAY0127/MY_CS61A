@@ -737,6 +737,114 @@ Q1-Q4 都是在写"单回合规则"，Q5 要把它们串成游戏主循环：
 
 ---
 
+## Interlude: User Interfaces（官网章节 · 非作业）
+
+官网原文开头：**"There are no required problems in this section of the project, just some examples for you to read and understand."** —— 不占分，不用写代码，读一下 `hog_ui.py` 理解它怎么用高阶函数包装你的代码，然后跑起来玩一局。
+
+### 核心思想：用高阶函数"替换"你的代码
+
+我们写了一个模拟器，但它是"哑巴"的——没有任何代码告诉它怎么把游戏事件显示给人。CS61A 的做法是：**不修改你 Phase 1 写的任何一行代码，用高阶函数把原来的函数一个个"包"起来，包装后的版本在调用原函数的同时额外 print**。
+
+原来的 `play` 调用：
+
+```
+strategy0 → update → dice
+```
+
+包装后的 `play_and_print` 调用：
+
+```
+printing_strategy(0, strategy0) → sus_update_and_print → printing_dice(dice)
+     ↑ 打印分数和骰子数            ↑ 打印骰子结果+Sus Fuss    ↑ 打印每颗骰子的点数
+```
+
+**注意 `play_and_print` 调的还是你 Phase 1 写的 `play`**——只是传进去的三个参数（strategy、update、dice）被换成了会 print 的版本。这就是 Phase 2 要学的高阶函数威力：**同一个 `play` 函数，换一套参数就能打印、就能交互、就能可视化**。
+
+### 三种包装函数（`hog_ui.py`）
+
+| 包装器 | 包装谁 | 做了什么 |
+|---|---|---|
+| `printing_strategy(who, strategy)` | strategy | 调用原策略拿到骰子数，同时 print `"The score is X to Y and Player W rolls N dice..."` |
+| `printing_dice(dice)` | dice | 调用原骰子函数，同时 print 点数（空格分隔） |
+| `sus_update_and_print` | update | 调 `take_turn` 打印骰子结果，调 `sus_points` 打印 Sus Fuss 是否触发 |
+
+### 跑起来玩一局
+
+```powershell
+# 0 人自动对战：always_roll_5 vs always_roll_5
+python3 hog_ui.py
+
+# 1 人（你 vs AI）：你手动输入每回合扔几颗
+python3 hog_ui.py -n 1
+
+# 2 人（你 vs 朋友）：两人轮流输入
+python3 hog_ui.py -n 2
+```
+
+`-n` 参数对应 `hog_ui.py` 里的 `play_with` 函数，它会把对应的 strategy 传给 `play_and_print`。
+
+### 交互式输入怎么实现的
+
+官网原文提到用 Python 内置函数做了一个很简单的交互式策略：
+
+```python
+def interactive_strategy(who):
+    def strategy(score, opponent_score):
+        print('Player', who, ', you have', score, 'and your opponent has', opponent_score)
+        choice = input('How many dice will you roll? ')
+        return int(choice)
+    return strategy
+```
+
+`input()` 暂停终端等你打字，返回字符串；`int()` 把字符串转成整数。`get_int` 加了一个校验循环，确保输入在 0~10 之间。
+
+### 输出长这样
+
+```
+The score is 2 to 23 and Player 0 rolls 5 dice...
+  [ 2 3 3 2 1 ] => 1; 2 + 1 = 3
+  ↑ Sow Sad：掷出 1，5 颗全白扔，只得 1 分
+
+The score is 1 to 1 and Player 1 rolls 5 dice...
+  [ 6 4 3 5 2 ] => 20; 1 + 20 = 21 triggering **Sus Fuss**, increasing to 23
+  ↑ Sus Fuss：21 有 4 个因子，跳到下一个质数 23
+
+The final score is Player 0: 72 vs Player 1: 120
+```
+
+### GUI（`hog_gui.py`，选做）
+
+浏览器图形界面，原理和 `hog_ui.py` 一样——也是包装你的 Phase 1 函数，只是换成了 Web UI。官网特别提醒：**"you can also use the GUI as a debugging tool"**——如果你的代码有 bug，GUI 里会直接反映出来，可以用来排查。
+
+```powershell
+python3 hog_gui.py
+```
+
+Phase 1 全通后 GUI 才正常工作——之前 `play` 没写完，GUI 是崩的。GUI 源码在 GitHub 上，用 JS/HTML/CSS 写的，不用读。
+
+### 也可以打开交互式 Python 自己玩
+
+```powershell
+python3 -i hog.py
+```
+
+```python
+>>> play(always_roll_5, always_roll_5, simple_update)
+(110, 80)
+
+>>> dice = make_test_dice(6, 6, 6, 6, 6, 6, 6, 6, 6, 6)
+>>> play(always_roll_5, always_roll_5, simple_update, dice=dice)
+(120, 90)
+```
+
+### CS61A 为什么把这部分放在中间
+
+整个项目节奏是：**先写零件（Phase 1）→ 用高阶函数给零件套"皮肤"（Interlude）→ 再写更聪明的策略去赢它（Phase 2）**。Interlude 展示的正是 Phase 2 要用的高阶函数模式：**同一个底层函数，换不同包装器，行为完全不同**。
+
+另外，官网允许你**随便改 `hog_ui.py`**——比如把 `always_roll_5` 换成你 Phase 2 写的策略，或者加自己的 print 调试。这是你的项目，尽情玩。
+
+---
+
 ## Phase 2: Strategies
 
 ### Q6: always_roll（2 pt）
@@ -769,20 +877,40 @@ def always_roll(n):
     # END PROBLEM 6
 ```
 
-**Ok 验证**：`python3 ok -q 06 -u` → `python3 ok -q 06`
+**Ok 验证**：`python3 ok -q 06 -u` → `python3 ok -q 06` → **2/2 通过**
 
-**逐步思路**
+**解锁验证（已通过）**
 
-HW02 Q3 `make_repeater` 同根——返回闭包记住外层的 `n`，内层函数忽略传入的 score 和 opponent_score：
+| Case | 输入 | 正确输出 | 说明 |
+|---|---|---|---|
+| 1 | `always_roll(3)(10, 20)` | `3` | 不管分数多少，永远返回闭包记住的 n=3 |
+| 2 | `always_roll(0)(99, 99)` | `0` | n 可以是 0（扔 0 颗骰子 → Boar Brawl） |
+
+**答案代码**
 
 ```python
 def always_roll(n):
+    """Return a player strategy that always rolls N dice.
+
+    A player strategy is a function that takes two total scores as arguments
+    (the current player's score, and the opponent's score), and returns a
+    number of dice that the current player will roll this turn.
+
+    >>> strategy = always_roll(3)
+    >>> strategy(0, 0)
+    3
+    >>> strategy(99, 99)
+    3
+    """
+    assert n >= 0 and n <= 10
     def strategy(score, opponent_score):
         return n
     return strategy
 ```
 
-`always_roll(6)` 等价于 `always_roll_5`（但传的是 6）。**return strategy 别加括号**。
+**逐步思路**
+
+HW02 Q3 `make_repeater` 同根——外层函数接收 n，内层闭包记住它。内层策略函数签名固定是 `(score, opponent_score)`（不管你用不用这两个参数），直接 return 外层的 n 就行。**返回函数对象 `strategy`，别加括号变成调用 `strategy()`**。
 
 **关联知识点**
 
