@@ -42,6 +42,9 @@ def boar_brawl(player_score, opponent_score):
     """
     # BEGIN PROBLEM 2
     "*** YOUR CODE HERE ***"
+    player_ones = player_score % 10
+    opponent_tens = (opponent_score // 10) % 10
+    return max(1, 3 * abs(opponent_tens - player_ones))
     # END PROBLEM 2
 
 
@@ -60,6 +63,13 @@ def take_turn(num_rolls, player_score, opponent_score, dice=six_sided):
     assert num_rolls <= 10, 'Cannot roll more than 10 dice.'
     # BEGIN PROBLEM 3
     "*** YOUR CODE HERE ***"
+    # take_turn 是回合入口：根据 num_rolls 分发到两个子规则
+    points = 0                                              # 本回合得分，先初始化为 0
+    if num_rolls == 0:                                      # 扔 0 颗骰子 → 触发 Boar Brawl
+        points = boar_brawl(player_score, opponent_score)   # 用自己个位 vs 对手十位算分
+    else:                                                   # 扔 ≥1 颗骰子 → 正常掷骰
+        points = roll_dice(num_rolls, dice)                 # 交给 roll_dice（已内置 Sow Sad）
+    return points                                           # 返回本回合得分（不含 Sus Fuss，那个在 sus_update 里处理）
     # END PROBLEM 3
 
 

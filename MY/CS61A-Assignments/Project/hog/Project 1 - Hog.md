@@ -73,6 +73,40 @@ status: in_progress
 
 ---
 
+**函数名词典（字面含义 → 功能）**
+
+| 函数名 | 字面含义 | 实际功能 |
+|---|---|---|
+| `roll_dice` | 掷骰子 | 模拟扔 `num_rolls` 颗骰子，返回得分（含 Sow Sad） |
+| `boar_brawl` | 野猪斗殴 | 扔 0 颗骰子时的特殊得分规则（Boar Brawl） |
+| `take_turn` | 进行一个回合 | 回合入口：根据骰子数量自动选 `roll_dice` 或 `boar_brawl` |
+| `num_factors` | 因子数量 | 返回 n 有多少个因子（含 1 和自身），判断 sus 数用 |
+| `sus_points` | sus 得分 | 回合结束后检查分数是否是 sus 数，是就跳到下一个质数 |
+| `simple_update` | 简单更新 | 算回合后的总分（不含 Sus Fuss） |
+| `sus_update` | sus 更新 | 算回合后的总分（含 Sus Fuss） |
+| `play` | 玩 | 模拟整场游戏，轮流让两个玩家走回合 |
+| `always_roll` | 总是扔 | 返回策略函数：永远扔 n 颗 |
+| `is_always_roll` | 是否总是扔 | 判断策略是不是"永远扔固定颗数" |
+| `make_averaged` | 造一个取平均的 | 返回函数：调用原函数 n 次取平均 |
+| `max_scoring_num_rolls` | 得分最高的骰子数 | 遍历 1~10 颗，找平均得分最高的颗数 |
+| `boar_strategy` | 野猪策略 | Boar Brawl 得分够高就扔 0 颗 |
+| `sus_strategy` | sus 策略 | 考虑 Sus Fuss 后得分够高就扔 0 颗 |
+| `final_strategy` | 最终策略 | 你的竞赛策略 |
+| `winner` | 赢家 | 比较两个策略谁赢 |
+| `average_win_rate` | 平均胜率 | 统计策略对基线策略的平均胜率 |
+
+**规则名词典**
+
+| 规则名 | 字面含义 | 触发条件 |
+|---|---|---|
+| **Sow Sad** | 播种悲伤 | 任意骰子掷出 1 → 本回合只得 1 分 |
+| **Boar Brawl** | 野猪斗殴 | 扔 0 颗骰子 → `3 × abs(对手十位 − 自己个位)` 得分 |
+| **Sus Fuss** | 可疑的大惊小怪 | 回合结束分数恰好是 sus 数（3 或 4 个因子）→ 跳到下一个质数 |
+
+记忆技巧：`boar_brawl` 两词都是 b 开头，对应"扔 0 颗时的特殊规则"；`sus` 是 suspicious（可疑的）缩写，sus 数就是"看起来可疑的数"。
+
+---
+
 **题目地图**（按官网导航顺序）
 
 **Phase 1: Rules of the Game（模拟器）**
@@ -301,9 +335,31 @@ def boar_brawl(player_score, opponent_score):
 
 **Ok 验证**：`python3 ok -q 02 -u` → `python3 ok -q 02`
 
+**解锁验证（已通过）**
+
+| Case | 输入 | 正确输出 | 计算过程 |
+|---|---|---|---|
+| 1 | `boar_brawl(21, 46)` | `9` | 对手十位=4, 自己个位=1, 3×\|4-1\|=9 |
+| 2 | `boar_brawl(52, 79)` | `15` | 对手十位=7, 自己个位=2, 3×\|7-2\|=15 |
+| 3 | `boar_brawl(0, 0)` | `1` | 3×\|0-0\|=0 → max(1,0)=1 |
+| 4 | `boar_brawl(0, 5)` | `1` | 对手十位=0, 自己个位=0, 3×0=0 → max(1,0)=1 |
+| 5 | `boar_brawl(2, 5)` | `6` | 对手十位=0, 自己个位=2, 3×\|0-2\|=6 |
+| 6 | `boar_brawl(7, 2)` | `21` | 对手十位=0, 自己个位=7, 3×\|0-7\|=21 |
+| 10 | `boar_brawl(72, 29)` | `1` | 对手十位=2, 自己个位=2, 3×\|2-2\|=0 → max(1,0)=1 |
+
+**解锁易错点**：Case 1 容易答成 `15`——如果搞反成「自己十位 − 对手个位」，就是 3×\|2-6\|=12 或者更混乱；正确的是「对手十位 4 − 自己个位 1」= 3×3=9。
+
+**答案代码**
+
+```python
+player_ones = player_score % 10
+opponent_tens = (opponent_score // 10) % 10
+return max(1, 3 * abs(opponent_tens - player_ones))
+```
+
 **逐步思路**
 
-1. opponent_tens = `opponent_score // 10`（整数除法取十位）
+1. opponent_tens = `(opponent_score // 10) % 10`（取右数第二位，即十位；超过 100 也正确）
 2. player_ones = `player_score % 10`（取模取个位）
 3. raw = `3 * abs(opponent_tens - player_ones)`
 4. return `max(1, raw)`（0 也要返回 1）
@@ -351,6 +407,25 @@ def take_turn(num_rolls, player_score, opponent_score, dice=six_sided):
 ```
 
 **Ok 验证**：`python3 ok -q 03 -u` → `python3 ok -q 03`
+
+**解锁验证（已通过）**
+
+| Case | 输入 | 正确输出 | 走哪条路 |
+|---|---|---|---|
+| 1 | `take_turn(2, 7, 27, make_test_dice(4, 5, 1))` | `9` | `num_rolls=2 > 0` → `roll_dice(2, ...)` = 4+5 = 9 |
+| 2 | `take_turn(3, 15, 9, make_test_dice(4, 6, 1))` | `1` | `num_rolls=3 > 0` → `roll_dice(3, ...)` 出现 1 → Sow Sad → 1 |
+| 3 | `take_turn(0, 12, 41)` | `6` | `num_rolls=0` → `boar_brawl(12, 41)`：对手十位=4, 自己个位=2, 3×\|4-2\|=6 |
+
+**答案代码**
+
+```python
+points = 0
+if num_rolls == 0:
+    points = boar_brawl(player_score, opponent_score)
+else:
+    points = roll_dice(num_rolls, dice)
+return points
+```
 
 **逐步思路**
 
