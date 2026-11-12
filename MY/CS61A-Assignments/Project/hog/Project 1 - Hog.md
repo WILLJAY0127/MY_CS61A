@@ -275,15 +275,24 @@ def roll_dice(num_rolls, dice=six_sided):
 **答案代码**
 
 ```python
-total = 0
-sow_sad = False
-while num_rolls > 0:
-    points = dice()
-    total += points
-    if points == 1:
-        sow_sad = True
-    num_rolls -= 1
-return 1 if sow_sad else total
+def roll_dice(num_rolls, dice=six_sided):
+    """Simulate rolling the DICE exactly NUM_ROLLS > 0 times. Return the sum of
+    the outcomes unless any of the outcomes is 1. In that case, return 1.
+
+    num_rolls:       The number of dice rolls that will be made.
+    dice:            A function that simulates a single dice roll outcome.
+    """
+    assert type(num_rolls) == int, 'num_rolls must be an integer.'
+    assert num_rolls > 0, 'Must roll at least once.'
+    total = 0
+    sow_sad = False
+    while num_rolls > 0:
+        points = dice()
+        total += points
+        if points == 1:
+            sow_sad = True
+        num_rolls -= 1
+    return 1 if sow_sad else total
 ```
 
 **逐步思路**
@@ -352,9 +361,15 @@ def boar_brawl(player_score, opponent_score):
 **答案代码**
 
 ```python
-player_ones = player_score % 10
-opponent_tens = (opponent_score // 10) % 10
-return max(1, 3 * abs(opponent_tens - player_ones))
+def boar_brawl(player_score, opponent_score):
+    """Return the points scored by rolling 0 dice according to Boar Brawl.
+
+    player_score:     The total score of the current player.
+    opponent_score:   The total score of the other player.
+    """
+    player_ones = player_score % 10
+    opponent_tens = (opponent_score // 10) % 10
+    return max(1, 3 * abs(opponent_tens - player_ones))
 ```
 
 **逐步思路**
@@ -419,25 +434,29 @@ def take_turn(num_rolls, player_score, opponent_score, dice=six_sided):
 **答案代码**
 
 ```python
-points = 0
-if num_rolls == 0:
-    points = boar_brawl(player_score, opponent_score)
-else:
-    points = roll_dice(num_rolls, dice)
-return points
+def take_turn(num_rolls, player_score, opponent_score, dice=six_sided):
+    """Return the points scored on a turn rolling NUM_ROLLS dice when the
+    player has PLAYER_SCORE points and the opponent has OPPONENT_SCORE points.
+
+    num_rolls:       The number of dice rolls that will be made.
+    player_score:    The total score of the current player.
+    opponent_score:  The total score of the other player.
+    dice:            A function that simulates a single dice roll outcome.
+    """
+    assert type(num_rolls) == int, 'num_rolls must be an integer.'
+    assert num_rolls >= 0, 'Cannot roll a negative number of dice in take_turn.'
+    assert num_rolls <= 10, 'Cannot roll more than 10 dice.'
+    points = 0
+    if num_rolls == 0:
+        points = boar_brawl(player_score, opponent_score)
+    else:
+        points = roll_dice(num_rolls, dice)
+    return points
 ```
 
 **逐步思路**
 
-```python
-def take_turn(num_rolls, player_score, opponent_score, dice=six_sided):
-    if num_rolls == 0:
-        return boar_brawl(player_score, opponent_score)
-    else:
-        return roll_dice(num_rolls, dice)
-```
-
-Q1/Q2 都实现好之后，这题就是一个 `if/else` 分发器，难度很低。
+Q1/Q2 都实现好之后，这题就是一个 `if/else` 分发器，难度很低：`num_rolls == 0` 走 Boar Brawl，否则走 `roll_dice`（Sow Sad 已内置）。
 
 **关联知识点**
 
