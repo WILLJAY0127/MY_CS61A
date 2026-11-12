@@ -219,7 +219,38 @@ def roll_dice(num_rolls, dice=six_sided):
 
 **Ok 验证**：`python3 ok -q 01 -u` → 解锁 → `python3 ok -q 01`
 
+**解锁验证（已通过）**
+
+| Case | 输入 | 正确输出 | 考点 |
+|---|---|---|---|
+| 1 | `roll_dice(2, make_test_dice(4, 6, 1))` | `10` | 正常求和：4+6 |
+| 2 | `roll_dice(3, make_test_dice(4, 6, 1))` | `1` | **Sow Sad**：出现 1，返回 1 而不是总和 11 |
+| 3 | `roll_dice(4, make_test_dice(2, 2, 3))` | `9` | 正常求和：2+2+3+2（第 4 次循环回到 2） |
+| 4 | `a = roll_dice(4, make_test_dice(1, 2, 3))` → `a` | `1` | 返回值不打印，直接用变量接 |
+| 5 | `roll_dice(3, counted_dice)` 后再 `roll_dice(1, counted_dice)` | 第一次 `1`，第二次 `6` | **状态保持**：测试骰内部有状态，第一次消耗了 4,1,2，第二次从 6 开始 |
+| 6 | `roll_dice(9, make_test_dice(6))` | `54` | 正常求和：6×9 |
+| 6 | `roll_dice(7, make_test_dice(2, 2, 2, 2, 2, 2, 1))` | `1` | Sow Sad：最后一颗是 1，前面的累加全部作废 |
+
+**解锁时两个易错点**：
+
+- **Case 2**：容易答成 `11`（4+6+1 的总和），但 Sow Sad 规则下只要出现 1 就返回 `1`，其他点数全部作废。
+- **Case 5**：容易答成 `4`，但 `counted_dice` 在第一次 `roll_dice(3, ...)` 时已经消耗了 `4, 1, 2` 三个值，第二次调用从序列的下一个值 `6` 开始。这就是题目反复强调「必须精确调用 `num_rolls` 次」的原因——少调一次，下一次的骰子序列就错位了。
+
 **核心约束（官网强调）**：**即使中途出现 1，也必须把所有 num_rolls 颗骰子都扔完**，不能提前 return。因为骰子是非纯函数，每次调用都会消耗一个"随机数"，少调用会导致后续骰子序列错位。
+
+**答案代码**
+
+```python
+total = 0
+sow_sad = False
+while num_rolls > 0:
+    points = dice()
+    total += points
+    if points == 1:
+        sow_sad = True
+    num_rolls -= 1
+return 1 if sow_sad else total
+```
 
 **逐步思路**
 

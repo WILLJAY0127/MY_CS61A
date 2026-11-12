@@ -1,5 +1,4 @@
 """The Game of Hog."""
-
 from dice import six_sided, make_test_dice
 from ucb import main, trace, interact
 
@@ -22,6 +21,15 @@ def roll_dice(num_rolls, dice=six_sided):
     assert num_rolls > 0, 'Must roll at least once.'
     # BEGIN PROBLEM 1
     "*** YOUR CODE HERE ***"
+    total = 0
+    sow_sad = False
+    while num_rolls > 0:
+        points = dice()
+        total = total + points
+        if points == 1:
+            sow_sad = True
+        num_rolls = num_rolls - 1
+    return 1 if sow_sad else total 
     # END PROBLEM 1
 
 
