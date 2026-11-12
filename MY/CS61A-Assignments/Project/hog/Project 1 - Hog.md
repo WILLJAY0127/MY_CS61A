@@ -954,11 +954,17 @@ def is_always_roll(strategy, goal=GOAL):
     # END PROBLEM 7
 ```
 
-**Ok 验证**：`python3 ok -q 07 -u` → `python3 ok -q 07`
+**Ok 验证**：`python3 ok -q 07 -u` → `python3 ok -q 07` → **9/9 通过**
 
-**逐步思路**
+**解锁验证**
 
-直接双层 for 循环扫所有组合（100×100 = 10000 次，计算机瞬间跑完）：
+| Case | 问题 | 答案 |
+|---|---|---|
+| 1 | `is_always_roll(always_roll_5)` | `True` |
+| 2 | `is_always_roll(always_roll(3))` | `True` |
+| 3 | `is_always_roll(catch_up)` | `False` |
+
+**答案代码**
 
 ```python
 def is_always_roll(strategy, goal=GOAL):
@@ -970,6 +976,15 @@ def is_always_roll(strategy, goal=GOAL):
     return True
 ```
 
+**逐步思路**
+
+直接双层 for 循环扫所有组合（goal×goal，默认 100×100 = 10000 次，计算机瞬间跑完）：
+
+1. 拿 (0, 0) 的返回值当基准 `first`
+2. 双层 `for range(goal)` 遍历所有 (score, opponent_score) 组合
+3. 任何一组返回值 ≠ first → 立刻 `return False`
+4. 全部走完都没发现不一样 → `return True`
+
 **关联知识点**
 
 - 穷举法（brute force）：当组合空间很小（goal 是常数、100² 不过万级）时，直接双层循环就好，不需要优化。CS61A 里你会发现很多题目都是"先简单暴力写一遍能过就行"。
@@ -977,8 +992,9 @@ def is_always_roll(strategy, goal=GOAL):
 
 **易错点**
 
-- **循环写成 `range(goal+1)`**：题目说 score 是 0 到 goal-1（游戏没结束的状态），googol 数应该是 goal² 不是 (goal+1)²。
-- **忘了提前记录 first**：如果每次都单独跟第一个比要先存下来；或者看当前是否等于前一个（更脆弱，因为有"第一次"的问题）。
+- **`while x in range(n)` 写法错误**：`range(n)` 是个迭代器，`in` 做的是成员检查（x 是否在序列里），不是赋值，而且循环体里也不会自动让 x 递增。结果是 Python 永远不会帮你声明 x，直接 `NameError`。固定次数循环一律用 `for x in range(n)`。
+- **循环写成 `range(goal+1)`**：score 范围是 0 到 goal-1（游戏没结束的状态），`range(goal+1)` 多包含了 goal 这个永远不会出现的分数。
+- **忘了提前记录 first**：必须先拿一个基准值存下来，后面都跟它比。
 
 ---
 
