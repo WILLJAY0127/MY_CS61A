@@ -523,7 +523,61 @@ def sus_update(num_rolls, player_score, opponent_score, dice=six_sided):
     # END PROBLEM 4
 ```
 
-**Ok 验证**：`python3 ok -q 04 -u` → `python3 ok -q 04`
+**Ok 验证**：`python3 ok -q 04 -u` → `python3 ok -q 04` → **27/27 通过**
+
+**解锁验证（已通过）**
+
+| Case | 输入 | 正确输出 | 计算过程 |
+|---|---|---|---|
+| 1 | `num_factors(1)` | `1` | 只有 1 |
+| 2 | `num_factors(2)` | `2` | 1, 2 |
+| 3 | `num_factors(3)` | `2` | 1, 3（质数都是 2 个因子） |
+| 4 | `num_factors(9)` | `3` | 1, 3, 9（平方数，3 只算一次） |
+| 5 | `num_factors(28)` | `6` | 1, 2, 4, 7, 14, 28 |
+| 6 | `num_factors(64)` | `7` | 1, 2, 4, 8, 16, 32, 64 |
+| 8 | `num_factors(97)` | `2` | 97 是质数 → 1, 97 |
+| 10 | `sus_points(1)` | `1` | 1 只有 1 个因子 → 不是 sus → 原样返回 |
+| 11 | `sus_points(21)` | `23` | 21 有 4 个因子(1,3,7,21) → sus → 下一个质数 23 |
+| 13 | `sus_points(62)` | `67` | 62 有 4 个因子(1,2,31,62) → sus → 下一个质数 67（跳过 63/64/65/66） |
+| 14 | `sus_points(64)` | `64` | 64 有 **7** 个因子 → 不是 sus → 保持 64 |
+| 19 | `simple_update(2, 5, 7, make_test_dice(2, 4))` | `11` | 5 + 2 + 4 = 11 |
+| 19 | `sus_update(2, 5, 7, make_test_dice(2, 4))` | `11` | 11 有 2 个因子 → 不是 sus → 保持 11 |
+| 20 | `simple_update(0, 15, 37)` | `21` | 15 + boar_brawl(15,37)：3×\|3−5\|=6 → 21 |
+| 20 | `sus_update(0, 15, 37)` | `23` | 21 有 4 个因子 → sus → 下一个质数 23 |
+| 21 | `simple_update(2, 2, 3, make_test_dice(4))` | `10` | 2 + 4 + 4 = 10 |
+| 21 | `sus_update(2, 2, 3, make_test_dice(4))` | `11` | 10 有 4 个因子(1,2,5,10) → sus → 下一个质数 11 |
+
+**Case 19-21 的提问陷阱**：题目注释写 `is 11 a sus number?`，但要求填的**不是** `Yes`/`No`/`True`/`False`，而是 **`sus_update(...)` 的返回数字**。填 `n`、`no`、`Yes`、`Y`、`False` 全部报 Not quite，填 `11` 才 OK。
+
+**答案代码**
+
+```python
+def num_factors(n):
+    """Return the number of factors of N, including 1 and N itself."""
+    count = 0
+    i = 1
+    while i <= n:
+        if n % i == 0:
+            count += 1
+        i += 1
+    return count
+
+def sus_points(score):
+    """Return the new score of a player taking into account the Sus Fuss rule."""
+    if num_factors(score) in (3, 4):
+        i = score + 1
+        while not is_prime(i):
+            i += 1
+        score = i
+    return score
+
+def sus_update(num_rolls, player_score, opponent_score, dice=six_sided):
+    """Return the total score of a player who starts their turn with
+    PLAYER_SCORE and then rolls NUM_ROLLS DICE, *including* Sus Fuss.
+    """
+    score = player_score + take_turn(num_rolls, player_score, opponent_score, dice)
+    return sus_points(score)
+```
 
 **逐步思路**
 
@@ -540,9 +594,11 @@ def sus_update(num_rolls, player_score, opponent_score, dice=six_sided):
 
 **易错点**
 
+- **`num_factors` 的 `i` 从 0 开始**：`n % 0` 直接 `ZeroDivisionError: division by zero`。因子最小值是 1，必须 `i = 1`。
+- **`sus_points` 里赋值给了不存在的变量**：循环变量是 `i`，却写成 `score = n`，触发 `NameError: name 'n' is not defined`。应该 `score = i`。
 - **sus 判断写成 `num_factors(score) <= 4`**：5 个因子的数（比如 16）会被误判成 sus。
 - **next prime 从 score 开始找**：应该从 score+1 开始，因为 score 本身就是 sus 数、要跳到"下一个"质数。
-- **is_prime 边界没处理 n < 2**：sus_points 里 score 可能是 21（sus），那 next prime 是 23；但你如果 sus_points(2) 时 score 已经是质数了（2 有 2 个因子，不是 sus），直接返回 2 就行。
+- **`is_prime` 边界没处理 n < 2**：sus_points 里 score 可能是 21（sus），那 next prime 是 23；但你如果 sus_points(2) 时 score 已经是质数了（2 有 2 个因子，不是 sus），直接返回 2 就行。
 
 ---
 
