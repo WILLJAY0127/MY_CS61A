@@ -656,17 +656,70 @@ def play(strategy0, strategy1, update,
     return score0, score1
 ```
 
-**Ok 验证**：`python3 ok -q 05 -u` → `python3 ok -q 05`
+**Ok 验证**：`python3 ok -q 05 -u` → `python3 ok -q 05` → **104/104 通过**
+
+**解锁验证（已通过）**
+
+Suite 1 是 4 道概念选择题（Suite 2 的 100 个 Case 自动解锁）：
+
+| Case | 题目 | 正确选项 | 你第一次选的 | 说明 |
+|---|---|---|---|---|
+| 1 | 循环的 while 条件？ | `0) score0 and score1 都 < goal` | ✅ 0 | 双方都没到 goal 才继续 |
+| 2 | 什么是 strategy？ | `2) 返回骰子数的函数` | ❌ 0 → ✅ 2 | strategy 是**函数**，不是一个数字 |
+| 3 | player1 的策略怎么调用？ | `2) strategy1(score1, score0)` | ✅ 2 | 自己分数在前（score1 是 player1） |
+| 4 | `strategy0 = lambda x, y: ((y%10)*(x%10))%10`，score0=55, score1=22，player0 扔几颗？ | `0) 0` | ✅ 0 | x=自己=55, y=对手=22 → `((22%10)*(55%10))%10 = (2*5)%10 = 0` |
+
+**Case 2 易错点**：容易选成 `0) 骰子数`。但 strategy 是**函数**——它接收分数、返回骰子数。`always_roll_5` 就是一个 strategy 函数，不是数字 5。
+
+**答案代码**
+
+```python
+def play(strategy0, strategy1, update,
+         score0=0, score1=0, dice=six_sided, goal=GOAL):
+    """Simulate a game and return the final scores of both players, with
+    Player 0's score first and Player 1's score second.
+
+    E.g., play(always_roll_5, always_roll_5, sus_update) simulates a game in
+    which both players always choose to roll 5 dice on every turn and the Sus
+    Fuss rule is in effect.
+
+    A strategy function, such as always_roll_5, takes the current player's
+    score and their opponent's score and returns the number of dice the current
+    player chooses to roll.
+
+    An update function, such as sus_update or simple_update, takes the number
+    of dice to roll, the current player's score, the opponent's score, and the
+    dice function used to simulate rolling dice. It returns the updated score
+    of the current player after they take their turn.
+
+    strategy0: The strategy for player0.
+    strategy1: The strategy for player1.
+    update:    The update function (used for both players).
+    score0:    Starting score for Player 0
+    score1:    Starting score for Player 1
+    dice:      A function of zero arguments that simulates a dice roll.
+    goal:      The game ends and someone wins when this score is reached.
+    """
+    who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
+    while score0 < goal and score1 < goal:
+        if who == 0:
+            num0 = strategy0(score0, score1)
+            score0 = update(num0, score0, score1, dice)
+        else:
+            num1 = strategy1(score1, score0)
+            score1 = update(num1, score1, score0, dice)
+        who = 1 - who
+    return score0, score1
+```
 
 **逐步思路**
 
-1. 用 `while True` 无限循环（因为不知道要几回合），每轮先判断 `score0 >= goal or score1 >= goal`，是的话 return 赢方。
-2. **策略接收的两个参数是「自己的分数」和「对手的分数」**，不是 `(score0, score1)`。所以调用时：
-   - player0 的回合：`num_rolls = strategy0(score0, score1)`
-   - player1 的回合：`num_rolls = strategy1(score1, score0)`
-   - 注意第二个参数是**对手**的分数，顺序反了就把策略搞反！
-3. 调 update 得分：`score0 = update(num_rolls, score0, score1, dice)`
-4. 交换回合（用一个 player 变量或交替调 strategy）。
+Q1-Q4 都是在写"单回合规则"，Q5 要把它们串成游戏主循环：
+
+1. 循环条件是**双方都没到 goal 才继续**：`while score0 < goal and score1 < goal`
+2. 每回合按 `who` 分支，`who=0` 调 player0 的策略和 update，`who=1` 调 player1 的
+3. **参数顺序永远是"自己在前、对手在后"**：player0 回合 → `strategy0(score0, score1)`；player1 回合 → `strategy1(score1, score0)`
+4. 换人用 `who = 1 - who`（0 和 1 是二元集合，减法翻转）
 
 **关联知识点**
 
@@ -675,9 +728,12 @@ def play(strategy0, strategy1, update,
 
 **易错点**
 
+- **while 条件的 `and` vs `or`**（真实踩坑）：
+  - `while score0 < goal or score1 < goal` → 有人到了 goal 还继续跑，**死循环**（Fuzz Testing 无限超时退出码 -1）
+  - `while score0 >= goal or score1 >= goal` → 一回合都不执行，直接返回 (0, 0)
+  - **正确**：`while score0 < goal and score1 < goal` —— 双方都没到 goal 才继续
 - **strategy 参数顺序反了**：player1 调用 `strategy1(score0, score1)` 传反了变成自己分数作第二个参数、对手分数作第一个——这样策略就会把自己分数当成对手分数来判断。
-- **忘记先判断输赢**：`while True` 里要先检查 ≥ goal 再进入策略/更新步骤，否则会多走一个回合。
-- **player 切换混乱**：推荐写法是用 `current_player = 0`，`(score0, score1) = (score1, score0)` 交换元组的写法，然后 `current_player = 1 - current_player`；或者把 score0/score1 放进列表里，用 index 切换。
+- **`who = 1 - who` 写法想不到**：最笨的写法是 `if who == 0: who = 1 else: who = 0`，也能过。`1 - who` 是 0/1 翻转的小 trick。
 
 ---
 
