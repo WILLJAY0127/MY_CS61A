@@ -1108,22 +1108,40 @@ def max_scoring_num_rolls(dice=six_sided, times_called=1000):
     # END PROBLEM 9
 ```
 
-**Ok 验证**：`python3 ok -q 09 -u` → `python3 ok -q 09`
+**Ok 验证**：`python3 ok -q 09 -u` → `python3 ok -q 09` → **10/10 通过**
 
-**逐步思路**
+**解锁验证**
+
+| Case | 问题 | 答案 | 你的第一选 |
+|---|---|---|---|
+| Suite 1-1 | 多个 num_rolls 平均分并列最高时返回哪个？ | **0) 最低的 num_rolls** | ✅ 直接对 |
+| Suite 2-1 | `dice = make_test_dice(3)`，永远出 3 | **10**（扔越多总分越高，且没有 1 不会 Sow Sad） | ✅ 直接对 |
+| Suite 3-1 | `dice = make_test_dice(2)`，永远出 2 | **10**（同上，2×10=20 最高） | ✅ 直接对 |
+| Suite 3-2 | `dice = make_test_dice(1)`，永远出 1 | **1**（扔任何颗都会 Sow Sad 得 1 分，并列最高 → 返回最小的 1） | ❌ 先猜 10 |
+| Suite 3-3 | `dice = make_test_dice(1, 2)` 交替出 1 和 2 | **1**（扔 1 颗平均 1.5；扔 ≥2 颗必含 1 触发 Sow Sad 得 1 → 1 颗最高） | ✅ 直接对 |
+
+**答案代码**
 
 ```python
 def max_scoring_num_rolls(dice=six_sided, times_called=1000):
-    averaged = make_averaged(roll_dice, times_called)
-    max_score = 0
-    best_num = 1
-    for num_rolls in range(1, 11):
-        avg = averaged(num_rolls, dice)
-        if avg > max_score:       # > 而非 >=，平局时保留旧的（小的那个）
-            max_score = avg
-            best_num = num_rolls
-    return best_num
+    average = make_averaged(roll_dice, times_called)
+    score = 0
+    num = 0
+    for i in range(1, 11):
+        value = average(i, dice)
+        if value > score:
+            num = i
+            score = value
+    return num
 ```
+
+**逐步思路**
+
+1. 循环外先造一次"平均器"：`averaged = make_averaged(roll_dice, times_called)`
+2. 用 `for i in range(1, 11)` 从 **1 到 10** 遍历（顺序很关键，见易错点）
+3. 每个 i 调 `averaged(i, dice)` 得到该骰子数下的平均分
+4. 用 `>`（严格大于）比较，只有真的更高才更新 `num` 和 `score` —— 平局时保留先出现的（较小的 i）
+5. 遍历完返回 `num`
 
 官网强调：**从 1 到 10 遍历**，不是 10 到 1。因为平局时保留先出现的（较小的那个）。
 
@@ -1134,8 +1152,10 @@ def max_scoring_num_rolls(dice=six_sided, times_called=1000):
 
 **易错点**
 
-- **遍历顺序错**：从 10 到 1 时 `>=` 保留大的、`>` 还是保留 1（因为 10 先被 max_score 覆盖）——必须严格从 1 到 10。
-- **直接调 roll_dice 而没通过 make_averaged**：题目明确要求用 make_averaged 做实验，你自己手工调 times_called 次也算平均——功能上等价但违反题目要求。
+- **遍历顺序错**：必须从 1 到 10。配合 `>` 使用，平局时才保留较小的 num_rolls；从 10 到 1 遍历则平局会保留 10。
+- **比较写成 `>=`**：`>=` 会在平局时被后出现的覆盖，结果变成"返回最大的 num_rolls"，与题目要求相反。
+- **直接调 roll_dice 而没通过 make_averaged**：题目明确要求用 make_averaged 做实验，自己手工写循环算平均功能上等价但违反题目要求。
+- **hint 说"要调 make_averaged 正好 10 次"是旧版说法**：当前版本把 `make_averaged` 放在循环外只建一次、循环里直接调返回的函数，同样 10/10 通过。以 ok 测试为准，不必照搬 hint。
 
 ---
 
