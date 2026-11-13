@@ -1,12 +1,23 @@
 ---
-lab: 00
+type: lab
+id: "00"
 title: Getting Started
 status: complete
+source: SOURCE/CS61A-Website-Archive/lab/lab00/index.html
+solution: SOURCE/CS61A-Website-Archive/lab/sol-lab00/index.html
+code: MY/CS61A-Assignments/Lab/lab00/lab00.py
+lectures: Lec01
+due: TBD
 ---
 
 # Lab 0: Getting Started
 
-> **原始题目**: `SOURCE/CS61A-Website-Archive/lab/lab00/index.html`
+- **题目来源**：`SOURCE/CS61A-Website-Archive/lab/lab00/index.html`
+- **官方解答（仅卡死时看）**：`SOURCE/CS61A-Website-Archive/lab/sol-lab00/index.html`
+- **Starter 基线**：`SOURCE/CS61A-Website-Archive/lab/lab00/lab00.zip`
+- **我的代码**：`MY/CS61A-Assignments/Lab/lab00/lab00.py`
+- **关联讲次**：Lec01 · Functions
+- **Due**：TBD
 
 ---
 
@@ -19,12 +30,19 @@ status: complete
 - expression vs statement：一个走 evaluate 产出值，一个走 execute 改变环境
 - assignment 两条规则：先算右边再绑左边；绑值不绑关系
 - primitive expression 与算术表达式：`2024`、`2 * 1000 + 24` 的求值方式
-- 函数定义与返回值：`twenty_twenty_four()` 的 return
 - 工具链：`python ok` 各参数、`python -i`、`python -m doctest`
 
-**题目地图**：WWPD 4 小问｜`twenty_twenty_four()`｜Running Tests
+**题目地图**
 
-**对应讲义**：Lec01&02 · Functions, Control
+| 区块 | 内容 |
+|---|---|
+| Starter Files | 下载 lab00.zip |
+| Introduction / Setup | Python 安装（略） |
+| Your First Assignment | 1) WWPD｜2) twenty_twenty_four()｜3) Running Tests |
+| Task C | 提交 Gradescope（略） |
+| Appendix | Python 命令行选项 |
+
+**对应讲义**：Lec01 · Functions
 
 ---
 
@@ -38,74 +56,38 @@ status: complete
 
 ### 1) What Would Python Do? (WWPD)
 
-运行：`python ok -q python-basics -u`
+```bash
+python ok -q python-basics -u
+```
 
-#### Case 1
-
-> 以下四个 `?` 是同一个 case 的连续交互，环境上下文共享。
-
-##### 问题 1
+**Case 1（四个问题共用同一个环境）**
 
 ```python
 >>> x = 20
 >>> x + 2
-?
-```
-
-**答案：22**
-
-x 绑着 20，表达式 `x + 2` 求值为 22。expression 只产出值，不改变环境。
-
----
-
-##### 问题 2
-
-```python
->>> x = 20
+22                      ← 问题 1：expression 只产出值，不改环境
 >>> x + 2
 22
 >>> x
-?
-```
-
-**答案：20**
-
-`x + 2` 没有修改环境的能力——它只是拿 x 的值算一下。x 始终绑着 20。这就是 Lec01&02 讲的 assignment 绑值不绑关系。
-
----
-
-##### 问题 3
-
-```python
+20                      ← 问题 2：x 没变，expression 没有修改环境的能力
 >>> y = 5
 >>> y = y + 3
 >>> y * 2
-?
-```
-
-**答案：16**
-
-`y = y + 3` 是 statement，执行规则：先 evaluate 右边 `y + 3`（此时 y 还是 5，5 + 3 = 8），再把 y 重绑到 8。然后 `y * 2` 是 expression，用新值 8 乘 2 得 16。
-
----
-
-##### 问题 4
-
-```python
+16                      ← 问题 3：assignment 先算右边（y 还是旧值 5→8），再绑左边
 >>> x = 20
 >>> y = 5
 >>> y = y + 3
 >>> y + x
-?
+28                      ← 问题 4：x=20（没被改），y=8（被重绑），加起来 28
 ```
 
-**答案：28**
+**说明**
 
-x = 20（从没被改），y = 8（被 `y = y + 3` 重绑）。8 + 20 = 28。
+- `x + 2` 是 expression，走 evaluate 规则产出 22，**不修改任何名字绑定**
+- `y = y + 3` 是 assignment statement，走 execute 规则：先算右边得 8，再把 y 重绑到 8
+- 两条核心规则交叉验证：expression 不改环境，statement 改环境
 
----
-
-##### WWPD 考点（对接 Lec01&02）
+**关联知识点**
 
 **expression vs statement 的核心区别**
 
@@ -115,17 +97,30 @@ x = 20（从没被改），y = 8（被 `y = y + 3` 重绑）。8 + 20 = 28。
 | 产出什么 | value | 无返回值，改环境 |
 | 本 case 例子 | `x + 2`、`y * 2`、`y + x` | `x = 20`、`y = y + 3` |
 
-**assignment statement 两条规则**：
+**assignment statement 两条规则**
+
 1. **先算右边再绑左边**——`y = y + 3` 算右边时 y 还是旧值 5
 2. **绑值不绑关系**——`x + 2` 不改变 x，要改 x 必须再写一条 assignment
+
+**易错点**
+
+- 以为 `y = y + 3` 算右边时 y 已经是新值 → 错，evaluate operands 时不触发 execute
+- 以为 `x + 2` 会改 x → 只有 assignment 才改环境
+- 把 `y + x` 里的 y 当成 5 而不是 8 → `y = y + 3` 已经把 y 重绑到 8
 
 ---
 
 ### 2) Implementing Functions
 
-文件：`lab00.py`
+#### Q1: twenty_twenty_four
 
-#### twenty_twenty_four()
+**原题（English）**
+
+Come up with the most creative expression that evaluates to 2024 using only numbers and the +, *, and - operators.
+
+> **中文**：只用数字和 `+` `*` `-` 三种运算符，return 一个值为 2024 的表达式。
+
+**Starter**
 
 ```python
 def twenty_twenty_four():
@@ -138,23 +133,24 @@ def twenty_twenty_four():
     return ______
 ```
 
-**要求**：只能用数字和 `+` `*` `-` 三种运算符，return 一个表达式值为 2024。
-
-**参考答案**（多种写法之一）：
+**答案**
 
 ```python
-return 2024           # 最直接
+return 2024                   # 最直接
 # 或者
 return 2 * 1000 + 24
 # 或者
 return 2025 - 1
 ```
 
-**考点**（对接 Lec01&02）
+**思路**
 
-- **primitive expression**：数字 `2024` 是 primitive expression（叶子），直接求值为自身
-- **call expression vs 算术表达式**：`2 * 1000 + 24` 是算术表达式（中缀记法），不是 call expression，但同样走 evaluate 规则，递归求值
-- **Abstraction vs 没抽象**：这个函数本身没有 abstraction（return 里没有隐藏逻辑），但整个 lab00 是在铺垫"函数作为 abstraction means"——这是 Lec01&02 three means 的第三轴
+这题没有"正确"解法——只要 evaluate 到 2024 就行。数字 `2024` 是 primitive expression（直接求值为自身），`2 * 1000 + 24` 是算术表达式（同样走 evaluate 规则递归求值）。
+
+**关联知识点**
+
+- primitive expression：数字 `2024` 是 primitive（叶子），直接求值为自身
+- 算术表达式 vs call expression：`2 * 1000 + 24` 是算术中缀记法，不是 call expression，但同样走 evaluate 规则
 
 ---
 
@@ -174,14 +170,30 @@ Windows 下如果 `python3` 不通，用 `python` 或 `py`。
 ## Appendix: Useful Python Command Line Options
 
 ```bash
-# 直接运行文件——执行完就退出
-python3 lab00.py
-
-# -i 交互模式——执行完进入 >>> 提示符，可调用函数测试
-python3 -i lab00.py
-
-# -m doctest——运行 docstring 里的 doctest 测试
-python3 -m doctest lab00.py
+python lab00.py                    # 直接运行文件，执行完退出
+python -i lab00.py                 # -i 交互模式，执行完进入 >>> 提示符
+python -m doctest lab00.py         # 运行 docstring 里的 doctest 测试
 ```
 
-**注意**：interactive 模式下修改了 .py 文件，需要 exit() 重新启动才能生效。
+**注意**：interactive 模式下修改了 .py 文件，需要 `exit()` 重新启动才能生效。
+
+---
+
+## Check Your Score Locally
+
+```bash
+python ok --score
+```
+
+（全对）
+
+---
+
+## 本次踩的坑
+
+（这题太基础，没踩坑）
+
+## 相关概念
+
+- [[Lab 1 - Functions]] — return vs print、doctest 用法、digit 提取
+- Lec01 · Functions（`MY/Weekly/`，待写）— expression vs statement、assignment 规则

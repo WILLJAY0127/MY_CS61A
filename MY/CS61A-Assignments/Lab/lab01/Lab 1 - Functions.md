@@ -1,14 +1,23 @@
 ---
-lab: 01
+type: lab
+id: "01"
 title: Functions
 status: in_progress
+source: SOURCE/CS61A-Website-Archive/lab/lab01/index.html
+solution: SOURCE/CS61A-Website-Archive/lab/sol-lab01/index.html
+code: MY/CS61A-Assignments/Lab/lab01/lab01.py
+lectures: Lec01, Lec02, Lec03
+due: TBD
 ---
 
 # Lab 1: Functions
 
-> **原始题目**: `SOURCE/CS61A-Website-Archive/lab/lab01/index.html`
->
-> **官方解答参考**: `SOURCE/CS61A-Website-Archive/lab/sol-lab01/index.html`（仅作映射，不作为结构来源）
+- **题目来源**：`SOURCE/CS61A-Website-Archive/lab/lab01/index.html`
+- **官方解答（仅卡死时看）**：`SOURCE/CS61A-Website-Archive/lab/sol-lab01/index.html`
+- **Starter 基线**：`SOURCE/CS61A-Website-Archive/lab/lab01/lab01.zip`
+- **我的代码**：`MY/CS61A-Assignments/Lab/lab01/lab01.py`
+- **关联讲次**：Lec01–03 · Functions + Control
+- **Due**：TBD
 
 ---
 
@@ -126,13 +135,13 @@ print 是 non-pure function——它有副作用，不终止函数。return 是 
 
 ---
 
-## Required Questions
+## What Would Python Display? (WWPD)
 
 ### Q1: WWPD — Return and Print
 
 运行：`python ok -q return-and-print -u`
 
-#### 问题 1
+**问题 1**
 
 ```python
 >>> def welcome():
@@ -159,7 +168,7 @@ Go
 
 ---
 
-#### 问题 2
+**问题 2**
 
 ```python
 >>> print(welcome(), cal())
@@ -188,13 +197,17 @@ call expression 求值规则（Lec01&02）：**先 evaluate 所有 operand，再
 
 副作用（Go、Bears）在求值阶段就输出了，比最终 print 的结果（hello world）先出现在屏幕上。
 
-**考点**（对接 Lec01&02）
+**关联知识点**（对接 Lec01&02）
 
 - **return vs print**：return 终止函数并产出值；print 是 non-pure function，有副作用但不终止函数
 - **解释器输出规则**：expression 的值自动 print（带引号如 `'hello'`）；print 函数的输出不带引号
 - **call expression 求值顺序**：先 evaluate 所有 operand（副作用先出），再 apply operator（结果后出）
 
 ---
+
+---
+
+## Write Code
 
 ### Q2: Debugging Quiz（concept）
 
@@ -204,7 +217,7 @@ call expression 求值规则（Lec01&02）：**先 evaluate 所有 operand，再
 
 ---
 
-#### Case 1
+**Case 1**
 
 Q: In the following traceback, what is the most recent function call?
 
@@ -231,7 +244,7 @@ traceback 底部是最近的调用，错误发生在 h 内部。
 
 ---
 
-#### Case 2
+**Case 2**
 
 Same traceback. Q: In the following traceback, what is the cause of this error?
 
@@ -245,7 +258,7 @@ Same traceback. Q: In the following traceback, what is the cause of this error?
 
 ---
 
-#### Case 3
+**Case 3**
 
 Q: How do you write a doctest asserting that `square(2) == 4`?
 
@@ -260,7 +273,7 @@ doctest 格式：`>>> 表达式` + 下一行预期输出。
 
 ---
 
-#### Case 4
+**Case 4**
 
 Q: When should you use print statements?
 
@@ -274,7 +287,7 @@ print 是临时调试工具，看变量值后删掉。选项 2 是 assertion 的
 
 ---
 
-#### Case 5
+**Case 5**
 
 Q: How do you prevent the ok autograder from interpreting print statements as output?
 
@@ -288,7 +301,7 @@ ok 忽略以 `DEBUG:` 开头的 print。
 
 ---
 
-#### Case 6
+**Case 6**
 
 Q: What is the best way to open an interactive terminal to investigate a failing test for question sum_digits in assignment lab01?
 
@@ -303,7 +316,7 @@ Q: What is the best way to open an interactive terminal to investigate a failing
 
 ---
 
-#### Case 7
+**Case 7**
 
 Q: Which of the following is NOT true?
 
@@ -356,7 +369,7 @@ digit(3579, 2)   # (3579 // 100) % 10 = 35 % 10 = 5
 digit(3579, 10)  # (3579 // 10000000000) % 10 = 0 % 10 = 0
 ```
 
-**解题思路**
+**思路**
 
 HW01 学的两个操作：`n % 10` 取最后一位，`n // 10` 砍掉最后一位。
 
@@ -364,7 +377,7 @@ HW01 学的两个操作：`n % 10` 取最后一位，`n // 10` 砍掉最后一�
 
 k=10 时 10^10 远大于 3579，`n // 10^10 = 0`，`0 % 10 = 0`，正好对上 doctest。
 
-**考点**（对接 Lec03 Control）
+**关联知识点**（对接 Lec03 Control）
 
 - **`//` 和 `%` 的组合**：`// 10^k` 砍掉后 k 位，`% 10` 取剩下的最后一位——这是数字拆解的标准模式
 - **`pow()` 函数**：`pow(10, k)` 比 `10 ** k` 更规范，内置函数比运算符优先级更清晰
@@ -415,11 +428,11 @@ middle(3, 5, 40)   # 48 - 40 - 3 = 5
 middle(30, 5, 40)  # 75 - 40 - 5 = 30
 ```
 
-**解题思路**
+**思路**
 
 和 HW01 Q2 two_of_three 同思路：**总和减去不要的**。三个数总和减最大减最小，剩下的就是中间值。一行 return，完美符合约束。
 
-**考点**（对接 Lec01&02 + HW01 Q2）
+**关联知识点**（对接 Lec01&02 + HW01 Q2）
 
 - **用减法代替选择**：不需要 if 判断谁是最大最小，直接用 max/min 选出来减掉——这种"补集思维"在算法里反复出现
 - **纯表达式组合**：一行 return 完成逻辑，对接 HW01 Q2 two_of_three 完全同构的约束和思路
@@ -427,13 +440,27 @@ middle(30, 5, 40)  # 75 - 40 - 5 = 30
 
 ---
 
+---
+
+## Syllabus Quiz
+
 ### Q5: Syllabus Quiz
 
 填问卷：https://go.cs61a.org/syllabus-quiz
 
 ---
 
-## Optional Questions（Lecture 3 后做）
+## Check Your Score Locally
+
+```bash
+python ok --score
+```
+
+（已过 Q1–Q5，未做 Q6–Q10）
+
+---
+
+## Optional Questions
 
 ### Q6: Falling Factorial
 
@@ -528,7 +555,7 @@ def sum_digits(y):
 
 **提示**：print (unlike return) does **not** cause the function to exit.
 
-#### 问题 1
+**问题 1**
 
 ```python
 >>> def ab(c, d):
@@ -551,7 +578,7 @@ foo
 
 ---
 
-#### 问题 2
+**问题 2**
 
 ```python
 >>> def bake(cake, make):
@@ -579,7 +606,7 @@ foo
 
 ---
 
-#### 问题 3
+**问题 3**
 
 ```python
 >>> bake(1, "mashed potatoes")

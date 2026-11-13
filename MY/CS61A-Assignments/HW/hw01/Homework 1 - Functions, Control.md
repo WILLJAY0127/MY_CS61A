@@ -1,14 +1,23 @@
 ---
-hw: 01
+type: hw
+id: "01"
 title: Functions, Control
 status: complete
+source: SOURCE/CS61A-Website-Archive/hw/hw01/index.html
+solution: SOURCE/CS61A-Website-Archive/hw/sol-hw01/index.html
+code: MY/CS61A-Assignments/HW/hw01/hw01.py
+lectures: Lec01, Lec02, Lec03
+due: TBD
 ---
 
 # Homework 1: Functions, Control
 
-> **原始题目**: `SOURCE/CS61A-Website-Archive/hw/hw01/index.html`
->
-> **官方解答参考**: `SOURCE/CS61A-Website-Archive/sol-hw01/`（仅作映射，不作为结构来源）
+- **题目来源**：`SOURCE/CS61A-Website-Archive/hw/hw01/index.html`
+- **官方解答（仅卡死时看）**：`SOURCE/CS61A-Website-Archive/hw/sol-hw01/index.html`
+- **Starter 基线**：`SOURCE/CS61A-Website-Archive/hw/hw01/hw01.zip`
+- **我的代码**：`MY/CS61A-Assignments/HW/hw01/hw01.py`
+- **关联讲次**：Lec01–03 · Functions + Control
+- **Due**：TBD
 
 ---
 
@@ -69,7 +78,7 @@ a_plus_abs_b(-1, 4)   # 3
 a_plus_abs_b(-1, -4)  # 3
 ```
 
-**解题思路**
+**思路**
 
 核心：f 要绑**函数本身**，不是绑函数算出来的结果。
 
@@ -82,7 +91,7 @@ a_plus_abs_b(-1, -4)  # 3
 | b < 0 | a - b → `sub(a, b)` |
 | b ≥ 0 | a + b → `add(a, b)` |
 
-**考点**（对接 Lec01&02）
+**关联知识点**（对接 Lec01&02）
 
 - **function 是 first-class value**：可以像数字一样绑到名字上（`f = sub`）
 - **assignment 先算右边再绑左边**：`f = a - b` 里的 `a - b` 会立刻求值
@@ -117,11 +126,11 @@ two_of_three(10, 2, 8)   # 68  = 4+64
 two_of_three(5, 5, 5)    # 50  = 25+25
 ```
 
-**解题思路**
+**思路**
 
 把"选两个最小"转化成"总和减最大"——三个数的平方和减去最大的平方，剩下的正好是两个最小的平方和。不需要 if 判断谁是最大，直接靠 `max` 选出来减掉。这就是"用减法代替选择"的思维。
 
-**考点**（对接 Lec01&02）
+**关联知识点**（对接 Lec01&02）
 
 - **纯表达式组合**：不用 statement（if/赋值），只用 call expression 嵌套
 - **pure function 可嵌套**：`max` 是纯函数，所以能安全嵌在算术表达式里
@@ -167,7 +176,7 @@ largest_factor(80)  # 40
 largest_factor(13)  # 1
 ```
 
-**解题思路**
+**思路**
 
 第一关是数学概念：x 是 n 的因数 ⟺ `n % x == 0`。
 
@@ -192,7 +201,7 @@ x=5  → 15%5=0  → 停,return 5 ✓
 
 质数 n=13：一路试到 x=1，`13%1=0` 停，return 1 ✓
 
-**考点**（对接 Lec03 Control）
+**关联知识点**（对接 Lec03 Control）
 
 - **while 循环的终止条件**：条件写的是"继续循环"的条件，不是"停止"的条件
 - **循环不变式**：每轮 x 递减 1，始终在 [1, n-1] 范围内
@@ -249,7 +258,7 @@ hailstone(10)   # 打印 10 5 16 8 4 2 1,返回 7
 hailstone(1)    # 打印 1,返回 1
 ```
 
-**解题思路**
+**思路**
 
 函数要做两件事：print（副作用）+ 返回长度（返回值）。所以既要 `print` 又要 `count`。
 
@@ -268,7 +277,7 @@ print 2,  count=6, n→1
 循环退出 → print 1, count=7 → return 7 ✓
 ```
 
-**考点**（对接 Lec01&02 + Lec03）
+**关联知识点**（对接 Lec01&02 + Lec03）
 
 - **pure vs non-pure**：`hailstone` 有 print 副作用（non-pure），同时又有返回值
 - **状态用变量管理**：n 和 count 都是循环变量，每轮更新——迭代式思维
@@ -285,7 +294,7 @@ python ok --score
 
 ---
 
-## 易错点汇总
+## 本次踩的坑
 
 | # | 错误 | 原因 | 修正 |
 |---|---|---|---|

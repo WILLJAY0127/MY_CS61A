@@ -56,6 +56,7 @@ H1  官方标题（全文唯一）
 硬性要求：
 
 - **标题层级逐级照抄官方 index.html**：官方是 H2 就 H2，是 H3 就 H3，是 H4 就 H4；顺序与名称都不改
+- **Disc 页面的 H1 分区降级为 H2**：CS61A Disc 页面正文里会用 `<h1>` 当分区标题（如 Ice Breaker、While and If、Higher-Order Functions），这在 HTML 里合法但 Markdown 不允许（全文只能有一个 H1 = 文档标题）。Disc 里这些正文分区一律降成 `##`，它们下面的题目 H3 不变。Lab/HW/Project 页面正文不用 H1，不受影响
 - 允许加中文括注（如 `## Topics（前置概念）`），但括号外必须是官方原名
 - **二级分组必须保留**：`What Would Python Display?`、`Coding Practice` 等不能省略
 - 官方没有的区块只出现在文档首尾：开头 `## 总起`，结尾 `## 验收`、`## 本次踩的坑`、`## 相关概念`

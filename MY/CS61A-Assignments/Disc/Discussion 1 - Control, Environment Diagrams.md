@@ -1,54 +1,58 @@
 ---
-disc: 01
+type: disc
+id: "01"
 title: Control, Environment Diagrams
 status: in_progress
+source: SOURCE/CS61A-Website-Archive/disc/disc01/index.html
+solution: SOURCE/CS61A-Website-Archive/disc/sol-disc01/index.html
+code: none
+lectures: Lec02, Lec03
+due: TBD
 ---
 
 # Discussion 1: Control, Environment Diagrams
 
-> **原始题目**: `SOURCE/CS61A-Website-Archive/disc/disc01/index.html`
+- **题目来源**：`SOURCE/CS61A-Website-Archive/disc/disc01/index.html`
+- **官方解答（仅卡死时看）**：`SOURCE/CS61A-Website-Archive/disc/sol-disc01/index.html`
+- **关联讲次**：Lec02–03 · Control + Lec04·05 · Environment Diagrams
+- **Due**：TBD
 
 ---
 
 ## 总起
 
-**一句话定位**：讨论课 1 用 6 道小题练 `while` / `if` 控制流；官网后半部分还有 Environment Diagrams，笔记暂未整理。
+**一句话定位**：Disc 1 用 6 道小题练 `while` / `if` 控制流，后半部分用两道环境图题把「frame、绑定、parent」概念砸实。
 
 **覆盖知识点**
 
 - `while` 循环：终止条件写的是「继续循环」的条件，循环变量每轮更新
-- `if` 分支：Fizzbuzz 这类多条件判断的书写顺序
+- `if` 分支：Fizzbuzz 多条件判断的书写顺序，特殊条件放前面
 - 整除判据：`n % x == 0` 判断因数，`n % 2` 判断奇偶
 - 数字拆解：`n % 10` 取末位、`n // 10` 砍末位
-- 边界处理：循环结束后终止值是否还要额外处理
-- 环境图：frame 创建时机、局部绑定不影响全局、first-class function 的重绑
+- frame 概念：每调用一次自定义函数就新建一个 frame，return 后销毁
+- 函数内赋值只建局部名：与全局同名变量互不影响
 
 **题目地图**
 
 | 模块 | 题号 | 类型 |
 |---|---|---|
 | While and If | Q1 Race（找 bug）｜Q2 Fizzbuzz（写函数） | while/if 控制流 |
-| Problem Solving | Q3 Is Prime｜Q4 Unique Digits（两个函数） | 质数判断 + 数字拆解 |
-| Environment Diagrams | Q5 Bottles（3 道选择题）｜Q6 Double Trouble（画图） | 环境图概念 |
+| Problem Solving | Q3 Is Prime｜Q4 Unique Digits | 质数判断 + 数字拆解 |
+| Environment Diagrams | Q5 Bottles（选择题）｜Q6 Double Trouble（画图） | 环境图概念 |
 
 **对应讲义**：Lec02&03 · Control + Lec04&05 · Environment Diagrams
 
 ---
 
-## disc01 完整结构（原始页面）
+## Ice Breaker
 
-| 模块 | 内容 | 自学价值 |
-|---|---|---|
-| Ice Breaker | 破冰游戏 | ❌ |
-| **While and If** | **Q1 Race ~ Q6 Double Trouble** | ✅ 全是 while/if 控制流练习 |
+（破冰，省略）
 
-下面只保留 6 道题。
+## While and If
 
----
+### Q1: Race
 
-## Q1: Race
-
-### 原版题目（英文）
+**原题（English）**
 
 The `race` function below sometimes returns the wrong value and sometimes runs forever.
 
@@ -73,30 +77,13 @@ def race(x, y):
     return minutes
 ```
 
-**任务要求**
+Find positive integers `x` and `y` (with `y` larger than `x` but not larger than `2 * x`) for which either:
+- `race(x, y)` returns the wrong value or
+- `race(x, y)` runs forever
 
-> Find positive integers `x` and `y` (with `y` larger than `x` but not larger than `2 * x`) for which either:
-> - `race(x, y)` returns the wrong value or
-> - `race(x, y)` runs forever
->
-> You just need to find one pair of numbers that satisfies either of these conditions to finish the question, but if you want to think of more you can.
+> **中文**：乌龟每分钟走 x 步，兔子快 5 分钟慢 5 分钟反复跑 y 步。找一组 x/y 要么返回错误值，要么永远跑不完。
 
-**Notes**
-
-> - `x += 1` is the same as `x = x + 1` when `x` is assigned to a number.
-> - 0 is a false value and all other numbers are true values.
-
-**官方 Hint**（toggle-1）
-
-> The value of `race(x, y)` is incorrect when it is not the **first** time the tortoise passes the hare. Try some small numbers (below 5) to see if you can find a case where `tortoise` has become larger than `hare`, but the expression `tortoise - hare` was not zero when it happened.
-
-Hint 点睛：循环条件是 `tortoise - hare != 0 就继续`——乌龟反超后不退出，只会等下一次整点相等。样例碰巧整点相等才跑对，找反超落在中间小数时刻的输入。
-
----
-
-### 解法思路（已完成）
-
-**Bug 根源**：两个坑叠加——① 循环条件用「相等才退出」（乌龟反超后继续）；② 一分钟一跳，丢了中间小数时刻。
+**答案**
 
 **错答案 case**：`race(3, 5)` 返回 25（真实应是 25/3 ≈ 8.333）
 
@@ -105,24 +92,35 @@ t=9 时：tortoise=27, hare=25 → 乌龟反超但 27-25≠0，循环继续
 t=25 时才凑到 tortoise=hare=75 → return 25  ← 错
 ```
 
-**死循环 case**：`race(3, 4)` 跑 50 万步不退。平均速度乌龟更快，但再也碰不到恰好整点相等的时刻。
+**死循环 case**：`race(3, 4)` 平均速度乌龟更快，但再也碰不到恰好整点相等的时刻。
 
-**考点**：离散模拟丢失中间状态；`while tortoise - hare` 不是「乌龟落后才继续」，是「不相等就继续」。
+**思路**
+
+循环条件是 `while tortoise - hare`——「乌龟和兔子不相等就继续」，不是「乌龟落后才继续」。样例碰巧整点相等才跑对，找反超落在中间小数时刻的输入就行。两个 bug 叠加：① 反超后不退出；② 一分钟一跳，丢了中间小数时刻。
+
+**关联知识点**
+
+- `while` 循环条件的精确语义：`tortoise - hare` 等于 0 时退出（Python 把 0 当假），不是负数时退出
+- 离散模拟的精度丢失：一分钟一步的离散化会漏掉中间时刻
+
+**易错点**
+
+- 把循环条件理解成「乌龟落后才继续」→ 实际上是「不相等就继续」，乌龟反超后循环继续找下一次相等
+- 忽略 assert 约束：`y > x` 且 `y <= 2 * x`，`race(1, 3)` 这种反例会被 assert 挡掉
 
 ---
 
-## Q2: Fizzbuzz
+### Q2: Fizzbuzz
 
-### 原版题目（英文）
+**原题（English）**
 
-> Implement the classic [Fizz Buzz](https://en.wikipedia.org/wiki/Fizz_buzz) sequence. The `fizzbuzz` function takes a positive integer `n` and prints out a single line for each integer from 1 to `n`. For each `i`:
->
-> - If `i` is divisible by both 3 and 5, print `fizzbuzz`.
-> - If `i` is divisible by 3 (but not 5), print `fizz`.
-> - If `i` is divisible by 5 (but not 3), print `buzz`.
-> - Otherwise, print the number `i`.
->
-> Try to make your implementation of `fizzbuzz` concise.
+Implement the classic Fizz Buzz sequence. The `fizzbuzz` function takes a positive integer `n` and prints out a single line for each integer from 1 to `n`. For each `i`:
+- If `i` is divisible by both 3 and 5, print `fizzbuzz`.
+- If `i` is divisible by 3 (but not 5), print `fizz`.
+- If `i` is divisible by 5 (but not 3), print `buzz`.
+- Otherwise, print the number `i`.
+
+Try to make your implementation of `fizzbuzz` concise.
 
 ```python
 def fizzbuzz(n):
@@ -150,13 +148,9 @@ def fizzbuzz(n):
     "*** YOUR CODE HERE ***"
 ```
 
-**官方 Hint**（toggle-2）
+> **中文**：经典 Fizz Buzz 序列——被 3 和 5 整除印 `fizzbuzz`，只被 3 整除印 `fizz`，只被 5 整除印 `buzz`，否则印数字。注意 doctest 里 `print(result)` 输出 `None`——函数没有 return。
 
-> Be careful about the order of your `if` and `elif` clauses: try first checking if the current number is divisible by both 3 and 5, then check for just divisibility by 3 and just divisibility by 5.
-
-Hint 点睛：先判 15，再判 3 / 5，别让 15 被第一个分支吃掉。
-
-### 参考答案
+**答案**
 
 ```python
 def fizzbuzz(n):
@@ -173,23 +167,27 @@ def fizzbuzz(n):
         i += 1
 ```
 
-**要点**
+**思路**
 
-- `i % 15 == 0` 等价于「同时被 3 和 5 整除」，必须写在最前面，否则 15 会先被 `i % 3` 吃掉。
-- 用 `elif` 而不是一串 `if`，保证每个 `i` 只打印一行。
-- 函数没有 `return`，隐式返回 `None`，所以 doctest 里 `print(result)` 输出 `None`。
+`i % 15 == 0` 等价于同时被 3 和 5 整除，必须写在最前面——否则 15 会先被 `i % 3` 或 `i % 5` 吃掉。用 `elif` 而不是一串 `if`，保证每个 `i` 只打印一行。
 
-**考点**
+**关联知识点**
 
-- 多分支 `if / elif` 的**判断顺序**：条件最「特殊」的分支必须放最前面（15 在 3 和 5 之前），否则会被更宽的 `i % 3` 抢先命中。
-- `n % k == 0` 是判断整除的固定写法，`%` 不改变 `n` 本身。
-- 区分「打印型函数」和「返回型函数」：`fizzbuzz` 只 `print`、无 `return`，所以调用结果是 `None`——这是考试里最常挖的坑。
+- `if / elif` 的判断顺序：条件最「特殊」的分支必须放最前面，否则会被更宽的条件抢先命中
+- 整除判断：`n % k == 0` 是固定写法
+- print vs return：`fizzbuzz` 只 print、无 return，隐式返回 None
+
+**易错点**
+
+- 忘了把 `i % 15` 放最前面，结果 15 印成 `fizz` 或 `buzz`
+- 用了 `if` 连写而不是 `elif` → 15 会连续印 `fizzbuzz`、`fizz`、`buzz` 三行
+- 以为函数应该 return 什么值 → print-only 函数天然返回 None
 
 ---
 
-## Problem Solving（方法论）
+## Problem Solving
 
-官网在 Q2 和 Q3 之间插入了一段**通用解题方法论**，要求讨论课上大家一起走一遍：
+官网在 Q2 和 Q3 之间插入了一段通用解题方法论：
 
 > A useful approach to implementing a function is to:
 > 1. Pick an example input and corresponding output.
@@ -198,22 +196,16 @@ def fizzbuzz(n):
 > 4. Implement the process in code using those additional names.
 > 5. Determine whether the implementation really works on your original example.
 > 6. Determine whether the implementation really works on other examples. (If not, you might need to revise step 2.)
->
-> Importantly, this approach doesn't go straight from reading a question to writing code.
->
-> **Important**: It's highly recommended that you **don't** check your work using a computer right away. Instead, talk to your group and think to try to figure out if an answer is correct. On exams, you won't be able to guess and check because you won't have a Python interpreter. Now is a great time to practice checking your work by thinking through examples. You could even draw an environment diagram!
 
----
+Disc 02 也重复强调了这套方法（见 `## Higher-Order Functions` 区块）。
 
-## Q3: Is Prime?
+### Q3: Is Prime?
 
-### 原版题目（英文）
+**原题（English）**
 
-> Write a function that returns `True` if a positive integer `n` is a prime number and `False` otherwise.
->
-> A prime number n is a number that is not divisible by any numbers other than 1 and n itself. For example, 13 is prime, since it is only divisible by 1 and 13, but 14 is not, since it is divisible by 1, 2, 7, and 14.
->
-> Use the `%` operator: `x % y` returns the remainder of `x` when divided by `y`.
+Write a function that returns `True` if a positive integer `n` is a prime number and `False` otherwise. A prime number n is a number that is not divisible by any numbers other than 1 and n itself. For example, 13 is prime (divisible by 1 and 13), but 14 is not (divisible by 1, 2, 7, 14).
+
+Use the `%` operator: `x % y` returns the remainder of `x` when divided by `y`.
 
 ```python
 def is_prime(n):
@@ -228,26 +220,9 @@ def is_prime(n):
     "*** YOUR CODE HERE ***"
 ```
 
-**官方 Hint**（toggle-3）
+> **中文**：写 `is_prime(n)` 返回质数判断结果。注意 **1 不是质数**。用 `%` 判断整除。
 
-> Here's a `while` statement that goes through all numbers above 1 and below `n`:
->
-> ```python
-> i = 2
-> while i < n:
->     ...
->     i = i + 1
-> ```
->
-> You can use `n % i == 0` to check whether `i` is a factor of `n`. If it is, `return False`.
-
-**Presentation Time**（讨论课要求）
-
-> Come up with a **one sentence description** of the process you implemented to solve `is_prime` that you think someone could understand without looking at your code. Share the sentence with your TA for feedback.
-
-Hint 点睛：`1` 不是质数；while 从 `i = 2` 开始，只要 `n % i == 0` 就 return False。
-
-### 参考答案
+**答案**
 
 ```python
 def is_prime(n):
@@ -261,35 +236,31 @@ def is_prime(n):
     return True
 ```
 
-**一句话描述**：从 2 开始试到 `n - 1`，只要发现一个能整除 `n` 的数就说明 `n` 不是质数，全试完都没找到则是质数。
+**思路**
 
-**要点**
+`1` 必须单独排除（`1` 既不是质数也没有因数）。循环从 `i = 2` 开始只试到 `i < n`——因为 `n % n` 恒为 0。循环中途 return False 说明发现因数，循环正常走完没 return 说明没找到因数，返回 True。
 
-- `i < n` 只试到 `n - 1`，因为 `n % n` 恒为 0；写 `i <= n` 会把所有数都判成非质数。
-- `n == 1` 必须单独排除（`1` 既不是质数也没有因数）。
-- 循环结束仍没 `return False`，说明没找到因数，返回 `True`。
+**关联知识点**
 
-**考点**
+- `while` 里提前 return 是「找到答案就退出」的标准模式，比设标志位再在循环外判断更简洁
+- 循环边界 `i < n` 而非 `i <= n`：多走一步就会用 `n` 去除自己，所有数全被判成非质数
+- 边界值单独处理：`1` 不满足 while 条件（`2 < 1` 为假），如果不提前 return，会错误返回 True
 
-- `while` 里**提前 return** 是「找到答案就退出」的标准模式，比设 `is_prime = True` 标志位再在循环外判断更简洁。
-- 循环边界 `i < n` 而非 `i <= n`：多走一步就会用 `n` 去除自己，所有数全被判成非质数。
-- 边界值要单独处理：`1` 不满足 while 条件（`2 < 1` 为假），如果不提前 return，会错误地返回 `True`。
-- 「循环正常走完」和「循环中途 return」是两种不同出口，写循环题先问自己：答案出现在中途还是结尾？
+**易错点**
+
+- 忘记单独处理 `n == 1` → 返回 True
+- 循环写 `i <= n` 把所有数判成非质数
+- 把 while 条件写成 `while i * i <= n`（这是更高效的版本，但这题不需要）——没加 `n > 1` 前置的话，会把 1 判成质数
 
 ---
 
-## Q4: Unique Digits
+### Q4: Unique Digits
 
-### 原版题目（英文）
+**原题（English）**
 
-> Write a function that returns the number of unique digits in a positive integer.
+Write a function that returns the number of unique digits in a positive integer.
 
-**内嵌 Hint block**（官网在题目里直接内嵌了一个引用块）
-
-> <blockquote>
-> <p><strong>Hints:</strong> You can use <code>//</code> and <code>%</code> to separate a positive integer into its one's digit and the rest of its digits.</p>
-> <p>You may find it helpful to first define a function <code>has_digit(n, k)</code>, which determines whether a number <code>n</code> has digit <code>k</code>.</p>
-> </blockquote>
+**Hints**: You can use `//` and `%` to separate a positive integer into its one's digit and the rest of its digits. You may find it helpful to first define a function `has_digit(n, k)`, which determines whether a number `n` has digit `k`.
 
 ```python
 def unique_digits(n):
@@ -316,13 +287,9 @@ def has_digit(n, k):
     "*** YOUR CODE HERE ***"
 ```
 
-**官方 Hint**（toggle-4）
+> **中文**：`unique_digits(n)` 数 n 里有几个不同数字；`has_digit(n, k)` 看 n 里有没有数字 k。Hint 建议先写 `has_digit`，`unique_digits` 调它。
 
-> One approach is to loop through every digit from 0 to 9 and check whether `n` has the digit. Count up the ones it has.
-
-Hint 点睛：两道题——`unique_digits` 调 `has_digit`；`has_digit` 用 `n % 10` + `n // 10` 拆数字。toggle Hint 直接遍历 0–9 更简单。
-
-### 参考答案
+**答案**
 
 ```python
 def unique_digits(n):
@@ -343,30 +310,25 @@ def has_digit(n, k):
     return False
 ```
 
-**要点**
+**思路**
 
-- `has_digit`：`n % 10` 取末位比较，`n // 10` 砍掉末位，直到 `n` 变成 0。
-- `unique_digits`：对 0–9 每个数字问一次「`n` 里有吗」，有就 `count += 1`，天然避免重复计数。
-- 换布尔标记写法也行：`while n > 0: if ...: return True`，逻辑等价于「找到就提前退出」。
+十进制拆位三件套：`n % 10` 取末位、`n // 10` 砍末位、`n > 0` 做循环条件。
 
-**拆数字的三件套**
+`has_digit` 从右往左砍，每砍一位就跟 k 比，找到就提前 return True，砍到 0 都没找到就 return False。
 
-| 写法 | 作用 |
-|---|---|
-| `n % 10` | 取末位：`8675309 % 10 = 9` |
-| `n // 10` | 砍掉末位：`8675309 // 10 = 867530` |
-| `n > 0` | 循环条件，砍到 0 就停 |
+`unique_digits` 不直接拆 n（那样还要用集合去重），而是对 0–9 每个数字问一次「n 里有吗」，有就 count += 1——天然避免重复计数。这是**问题转化**的思路。
 
-`n = 8675309` 反复执行 `n = n // 10`，每次取的末位依次是 `9 → 0 → 3 → 5 → 7 → 6 → 8`，正好覆盖每一位。
+**关联知识点**
 
-注意循环条件不能写 `n >= 0`：`0 // 10` 仍是 `0`，会死循环。
+- 十进制拆位三件套是所有「按位处理整数」题的通用骨架
+- 问题转化：把「数有几个不同的数字」转成「对 0–9 逐个问它在不在」
+- 函数间调用：`unique_digits` 依赖 `has_digit`，职责拆分
 
-**考点**
+**易错点**
 
-- 十进制拆位三件套是所有「按位处理整数」题目的通用骨架。
-- **问题转化**：「数有几个不同的数字」不好直接做，转成「对 0–9 逐个问它在不在」就变成简单计数，天然免疫重复计数。
-- 函数间调用：`unique_digits` 依赖 `has_digit`，把「判断」和「计数」拆成两个函数，职责单一也方便单独测试。
-- 拆位循环会**破坏原数**（`n = n // 10`），所以只能拿函数参数 `n` 来改，不能用它继续做别的事。
+- `has_digit` 循环条件写 `n >= 0` → `0 // 10` 仍是 0，死循环
+- 忘记写 `has_digit` → `unique_digits` 里硬写拆位 + 去重，复杂度翻倍
+- 拆位循环会**破坏原数**（`n = n // 10`），所以只能拿函数参数 n 来改
 
 **验证**
 
@@ -378,17 +340,13 @@ unique_digits(101) → 2
 
 ---
 
-## Environment Diagrams（环境图模块）
+## Environment Diagrams
 
-官网侧边栏导航显示 disc01 有三大模块：While and If → Problem Solving → **Environment Diagrams**。Q5 和 Q6 属于第三模块，不是写函数题，是**理解环境图的概念题**。
+### Q5: Bottles（环境图选择题）
 
-核心概念：**environment diagram** 用方框（frame）记录每个函数调用创建的名字-值绑定关系。
+**原题（English）**
 
-## Q5: Bottles（环境图选择题）
-
-### 原版题目（英文）
-
-> Answer the following questions with your group. Step through the diagram to check your answers.
+Answer the following questions with your group. Step through the diagram to check your answers.
 
 ```python
 bottles = 99
@@ -419,11 +377,11 @@ bottles = remaining
 - b) It permanently changes the value bound to `bottles` in the global frame.
 - c) It has no effect on the global frame.
 
-PythonTutor 链接：[在代码里直接看](https://pythontutor.com/iframe-embed.html#code=bottles+%3D+99%0Atake+%3D+1%0A%0Adef+pass_it%28around%29%3A%0A++++bottles+%3D+98%0A++++return+take%0A%0Aremaining+%3D+bottles+-+pass_it%28bottles%29%0Abottles+%3D+remaining%0A&codeDivHeight=460&codeDivWidth=350&cumulative=true&curInstr=1&heapPrimitives=nevernest&origin=composingprograms.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false)
+> **中文**：三道选择题，考 frame 数量、返回值去向、函数内赋值是否改全局。
 
 **执行过程**
 
-前三行定义完后，全局 frame：
+前三行定义完后：
 
 ```
 Global frame
@@ -432,7 +390,7 @@ Global frame
   pass_it → func pass_it(around) [parent=Global]
 ```
 
-`remaining = bottles - pass_it(bottles)` 要求值两边：
+`remaining = bottles - pass_it(bottles)`：
 
 1. 左边 `bottles` → 查全局 → 99
 2. 右边 `pass_it(bottles)` → **新建 pass_it frame**：
@@ -443,37 +401,37 @@ pass_it frame（parent: Global）
   bottles → 98          ← 局部名字，与全局的 bottles 无关
 ```
 
-`return take`：本 frame 没有 `take`，沿 parent 向上找 → 全局 `take = 1` → 返回 1，frame 随即销毁。
+`return take`：本 frame 没有 `take`，沿 parent 向上找 → 全局 `take = 1` → 返回 1，frame 销毁。
 
 3. `remaining = 99 - 1 = 98` → 全局 `remaining → 98`
 4. `bottles = remaining` → 全局 `bottles → 98`
 
 **答案**
 
-- **Q5.1 d)** frame 数量 = 自定义函数被调用的次数。定义了 1 个函数却产生 2 个 frame；call expression 是**代码里写了几个调用**，与实际调用次数不是一回事。
-- **Q5.2 a)** 返回的 1 参与 `99 - 1`，最终成为全局 `remaining` 的值。注意题目问的是**返回值的去向**（happen **to**），不是返回那一刻发生了什么。
-- **Q5.3 c)** 函数内 `bottles = 98` 创建的是 pass_it frame 里的**局部名字**，全局 `bottles` 全程没被碰过。
+- **Q5.1 d)** frame 数量 = 自定义函数被调用的次数（不是 call expression 数，不是函数定义数）
+- **Q5.2 a)** 返回的 1 参与 `99 - 1`，最终成为全局 `remaining` 的值
+- **Q5.3 c)** 函数内 `bottles = 98` 建的是局部名字，全局 `bottles` 全程没被碰过
+
+**关联知识点**
+
+- frame 的创建与销毁：每调用一次自定义函数就新建一个 frame，return 后销毁
+- 函数内赋值只建局部名：函数体里的 `x = ...` 在当前 frame 里绑定新名字，同名全局变量完全不受影响
+- 名字查找沿 parent 向上：`return take` 在本 frame 找不到，就沿 parent 箭头到全局去找
+- 环境图三要素：frame（方框）、名字-值绑定（框内条目）、parent 指针（向上箭头）
 
 **易错点**
 
-- 把 `bottles = 98` 当成改了全局 → 会算成 `remaining = 98 - 1 = 97`，全错。
-- 选 Q5.3 的 a「临时修改」：错在它连临时修改都没有，局部名字从创建起就是独立绑定。
-- 忽略 `return take` 的名字查找：本 frame 找不到就往 parent 找，最终拿到全局的 1。
-
-**考点**
-
-- **frame 的创建与销毁**：每调用一次自定义函数就新建一个 frame，`return` 后销毁；frame 数量 = 调用次数，与函数定义数、return 语句数无关。
-- **函数内赋值只建局部名**：函数体里的 `x = ...` 在当前 frame 里绑定新名字，同名全局变量完全不受影响。
-- **名字查找沿 parent 向上**：`return take` 在本 frame 找不到 `take`，就沿 parent 箭头到全局去找。
-- **环境图的三要素**：frame（方框）、名字-值绑定（框内条目）、parent 指针（向上箭头）。
+- 把 `bottles = 98` 当成改了全局 → 会算成 `remaining = 98 - 1 = 97`，全错
+- Q5.3 选 a「临时修改」→ 错在它连临时修改都没有，局部名字从创建起就是独立绑定
+- 忽略 `return take` 的名字查找：本 frame 找不到就往 parent 找
 
 ---
 
-## Q6: Double Trouble（环境图绘制题）
+### Q6: Double Trouble（环境图绘制题）
 
-### 原版题目（英文）
+**原题（English）**
 
-> Draw the environment diagram on paper or a whiteboard (without having the computer draw it for you)! Then, check your work by stepping through the diagram.
+Draw the environment diagram on paper or a whiteboard (without having the computer draw it for you)! Then, check your work by stepping through the diagram.
 
 ```python
 def double(x):
@@ -486,44 +444,31 @@ hat = double
 double = triple
 ```
 
-PythonTutor 链接：[在代码里直接看](https://pythontutor.com/iframe-embed.html#code=def+double%28x%29%3A%0A++++return+x+%2A+2%0A%0Adef+triple%28x%29%3A%0A++++return+x+%2A+3%0A%0Ahat+%3D+double%0Adouble+%3D+triple%0A&codeDivHeight=460&codeDivWidth=350&cumulative=true&curInstr=1&heapPrimitives=nevernest&origin=composingprograms.js&py=3&rawInputLstJSON=%5B%5D&textReferences=false)
+> **中文**：在纸上画这段代码的环境图。注意——整段代码**没有任何函数调用**，所以只有一个全局 frame。
 
-**逐步画图**
+**最终状态**（核心产出）
 
-这段代码**没有任何函数调用**，所以整张图只有 1 个 frame（全局）——正是 Q5.1 结论的直接应用：frame 数 = 调用次数 = 0。
+| 帧 | 名字 | 绑定值 |
+|---|---|---|
+| Global | double | function triple（intrinsic name: triple, parent=Global） |
+| Global | triple | function triple |
+| Global | hat | function double（intrinsic name: double, parent=Global） |
 
-`def double(x):` → 创建函数对象并绑定名字：
+> 整段没有函数调用，只有 Global 一个 frame；两个函数对象、三个名字绑定。
 
-```
-Global frame
-  double → func double(x) [parent=Global]
-```
+**关键追踪步骤**
 
-`def triple(x):` → 同理：
+- `def double(x):` → 创建 function double（parent=Global），Global 里 `double → func double`
+- `def triple(x):` → 创建 function triple（parent=Global），Global 里 `triple → func triple`
+- `hat = double` → 先求右边得 **函数对象本身**（不是调用结果），绑定给 `hat`；此时 `hat` 和 `double` 指向同一个对象
+- `double = triple` → 求右边得 func triple，把名字 `double` 重新绑过去；`hat` 指向的 func double 纹丝不动——**绑值，不绑关系**
 
-```
-Global frame
-  double → func double(x) [parent=Global]
-  triple → func triple(x) [parent=Global]
-```
+**考点清单**
 
-`hat = double` → 先求右边：查全局得到**函数对象本身** → 绑定给 `hat`。此时 `hat` 与 `double` 指向同一个对象：
-
-```
-Global frame
-  double → func double(x) ─┐
-  hat    → ────────────────┘   （同一个对象，两个箭头）
-  triple → func triple(x)
-```
-
-`double = triple` → 求右边得 triple 对象，把名字 `double` 重新绑过去：
-
-```
-Global frame
-  double → func triple(x) ─┐
-  triple → func triple(x) ─┘   （同一个对象）
-  hat    → func double(x)      （仍是原对象，没被影响）
-```
+- **函数是一等值**：函数对象可以像数字一样赋给别的名字
+- **赋值绑的是对象，不是名字**：`hat = double` 让 hat 直接指向函数对象；之后重新绑定 `double` 不影响 `hat`
+- **两类箭头不能混**：名字 → 对象的绑定箭头（可随时改指向），函数对象 → 定义环境的 parent 箭头（def 时确定，不再改变）
+- **没有调用就没有新 frame**：这段代码 0 次调用，所以整张图只有 Global 一个 frame
 
 **验证**
 
@@ -533,17 +478,26 @@ Global frame
 | `triple(3)` | func triple | 9 |
 | `hat(3)` | func double | 6 |
 
+**关联知识点**
+
+- 对接 Lec04·05 环境图规则
+- 闭包机制里也用到「函数对象记住自己的 parent 帧」——这道题的 parent 箭头是 def 时就锁定的，跟名字重绑无关
+
 **易错点**
 
-- 画成「`hat` 指向 `double` 这个名字」→ 错。`hat` 的箭头直接指向函数对象，中间不经过名字，所以改 `double` 的绑定时 `hat` 纹丝不动。
-- 误以为 `double = triple` 让 `hat` 也跟着变 → `hat(3)` 会算成 9，实际是 6。
-- 数错 frame 个数 → 这段没有调用，只有全局 frame。
+- 误以为 `hat = double` 让 hat 跟随 double → `hat(3)` 会算成 9，实际是 6
+- 把 hat 画成指向 `double` 这个名字（中间有虚线箭头）→ 错，hat 直接指向函数对象
+- 数错 frame 个数 → 这段没有调用，只有 Global
 
-**类比**：`hat = double; double = triple` 和 `b = a; a = 7`（`b` 仍是旧值）是同一机制，只是值从整数换成了函数对象——**绑值，不绑关系**。
+---
 
-**考点**
+## 本次踩的坑
 
-- **函数是一等值**：`def` 创建函数对象并绑到名字上，函数对象可以像数字一样赋给别的名字、作为参数传递。
-- **赋值绑的是对象，不是名字**：`hat = double` 让 `hat` 直接指向函数对象；之后重新绑定 `double` 不影响 `hat`——没有「别名跟随」这回事。
-- **两类箭头不能混**：名字 → 对象的绑定箭头（可随时改指向），函数对象 → 定义环境的 parent 箭头（`def` 时确定，不再改变）。
-- **没有调用就没有新 frame**：整段代码只有全局一个 frame，画图时别凭「有几个函数」去数 frame。
+- Q1 Race 里容易把 `minutes % 10 < 5` 当成「兔子前 5 分钟跑」——实际上 rabbit 的时间轴和 tortoise 是同一条 minutes，每 10 分钟一个周期（5 跑 + 5 歇）
+- Q3 `is_prime` 的 `i < n` 写成 `i <= n` → 多走一步 `n % n == 0` 把所有数判成非质数
+
+## 相关概念
+
+- [[Lab 1 - Functions]] — 数字拆解三件套、while 控制流同源
+- [[Lab 2 - Higher-Order Functions]] — Q6 Double Trouble 的「绑值不绑关系」是闭包的前置理解
+- Lec02 · Control（`MY/Weekly/`，待写）— while 循环边界、提前 return 模式

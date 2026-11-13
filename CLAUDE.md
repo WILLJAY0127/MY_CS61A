@@ -195,7 +195,7 @@ status: <complete / 待补哪阶段>
 
 ### HW/Lab/Disc 笔记固定格式
 
-> **结构以 [`MY/Knowledge/Assignment_Note_Template.md`](file:///d:/myfile/MY_CS61A/MY/Knowledge/Assignment_Note_Template.md) 为唯一标准**：H1 官方标题 → 标题层级逐级照抄官方页面目录（H2/H3/H4 原顺序、原名，可加中文括注，保留 What Would Python Display? / Coding Practice 等分组）→ 题内只用加粗标签，不用标题。下面的旧骨架仅保留方法论说明。
+> **结构以 [`MY/Knowledge/Assignment_Note_Template.md`](file:///d:/myfile/MY_CS61A/MY/Knowledge/Assignment_Note_Template.md) 为唯一标准**：H1 官方标题 → 标题层级逐级照抄官方页面目录（H2/H3/H4 原顺序、原名，可加中文括注，保留 What Would Python Display? / Coding Practice 等分组）→ **Disc 页面正文用 `<h1>` 当分区标题（Ice Breaker、While and If、Higher-Order Functions…），Markdown 不允许多个 H1，所以这些分区一律降成 `##`，下面的题目 H3 不变** → 题内只用加粗标签，不用标题。下面的旧骨架仅保留方法论说明。
 
 ```markdown
 ---

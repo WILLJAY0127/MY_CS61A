@@ -1,18 +1,26 @@
 ---
-proj: 01
-title: Hog
+type: project
+id: "01"
+title: The Game of Hog
 status: in_progress
+source: SOURCE/CS61A-Website-Archive/proj/hog/index.html
+solution: none
+code: MY/CS61A-Assignments/Project/hog/hog.py
+lectures: Lec02, Lec03, Lec04
+due: TBD
 ---
 
-# Project 1: Hog
+# Project 1: The Game of Hog
 
-- **原始题目**：`SOURCE/CS61A-Website-Archive/proj/hog/index.html`
-- **Starter 文件**：`MY/CS61A-Assignments/Project/hog/`
-- **总 16 分**：Q0 0 + Q1 2 + Q2 2 + Q3 2 + Q4 2 + Q5 4 + Q6 2 + Q7 2 + Q8 2 + Q9 2 + Q10 2 + Q11 2，Q12 可选 0
+- **题目来源**：`SOURCE/CS61A-Website-Archive/proj/hog/index.html`
+- **Starter 基线**：`SOURCE/CS61A-Website-Archive/proj/hog/hog.zip`
+- **我的代码**：`MY/CS61A-Assignments/Project/hog/hog.py`
+- **关联讲次**：Lec02–04 · Control + Higher-Order Functions
+- **Due**：TBD
 
 ---
 
-## 总起：这个项目到底教什么
+## 总起
 
 **一句话**：从零到一搭一个"掷骰子游戏模拟器 + AI 策略框架"，在过程中掌握 **控制流 + 高阶函数 + 闭包 + 蒙特卡洛模拟** 这四大核心。
 
@@ -42,17 +50,9 @@ status: in_progress
 
 ---
 
-## 项目介绍
+## Introduction
 
-**本项目做什么**：用 Python 实现骰子游戏 **Hog** 的完整模拟器和多种 AI 策略。同时用到**控制语句**（循环、条件）和**高阶函数**（函数作参数、函数作返回值），对应教材 Section 1.2–1.6。
-
-**做题顺序**：官网明确要求按顺序做，因为后面的函数会依赖前面已经写好的实现（比如 `take_turn` 要调 `roll_dice` 和 `boar_brawl`，`play` 要调 `take_turn` 和 `update`）。如果跳过了 Q1 直接做 Q5，`ok` 的构造检查会通不过。
-
-**警告**：过去的学生里有不少人**没读清楚题目描述就直接写代码**，踩了很多不必要的坑。建议每题先通读一遍再动手。
-
----
-
-### Hog 游戏规则
+### Rules
 
 两名玩家交替回合，每回合当前玩家选若干骰子一起扔（最多 10 颗）。当某玩家**回合结束后**分数 ≥ `GOAL`（默认 100）时获胜。
 
@@ -171,7 +171,7 @@ status: in_progress
 
 ### Q0: Dice（0 pt，解锁测试）
 
-**原版题目（英文）**
+**原题（English）**
 
 The `dice.py` file represents dice using non-pure zero-argument functions. These functions are non-pure because they may have different return values each time they are called, and so a side-effect of calling the function is changing what will be returned when the function is called again.
 
@@ -252,7 +252,7 @@ Suite 2 —— 选择题「怎样掷一次公平六面骰？」，正确答案 `
 
 ### Q1: roll_dice（2 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 Implement the `roll_dice` function in `hog.py`. It takes two arguments: a positive integer called `num_rolls`, which specifies the number of times to roll a die, and a `dice` function. It returns the number of points scored by rolling the die that number of times in a turn: either the sum of the outcomes or 1 (*Sow Sad*).
 
@@ -349,7 +349,7 @@ def roll_dice(num_rolls, dice=six_sided):
 
 ### Q2: boar_brawl（2 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 Implement `boar_brawl`, which takes the player's current score `player_score` and the opponent's current score `opponent_score`, and returns the number of points scored when the player rolls 0 dice and Boar Brawl is invoked.
 
@@ -425,7 +425,7 @@ def boar_brawl(player_score, opponent_score):
 
 ### Q3: take_turn（2 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 Implement the `take_turn` function, which returns the number of points scored for a turn by rolling the given `dice` `num_rolls` times.
 
@@ -503,7 +503,7 @@ Q1/Q2 都实现好之后，这题就是一个 `if/else` 分发器，难度很低
 
 ### Q4: num_factors / sus_points / sus_update（2 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 First, implement `num_factors`, which takes in a positive integer `n` and determines the number of factors that `n` has. **1 and `n` are both factors of `n`!**
 
@@ -635,7 +635,7 @@ def sus_update(num_rolls, player_score, opponent_score, dice=six_sided):
 
 ### Q5: play（4 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 Finally, implement the `play` function, which simulates a game and returns the final scores of both players, with Player 0's score first, and Player 1's score second.
 
@@ -880,7 +880,7 @@ python3 -i hog.py
 
 ### Q6: always_roll（2 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 Implement `always_roll`, a higher-order function that takes a number of dice `n` and returns a strategy function that always rolls `n` dice.
 
@@ -957,7 +957,7 @@ HW02 Q3 `make_repeater` 同根——外层函数接收 n，内层闭包记住它
 
 ### Q7: is_always_roll（2 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 Implement `is_always_roll`, which takes a `strategy` and returns whether that strategy always chooses the same number of dice to roll, no matter what the current score is.
 
@@ -1031,7 +1031,7 @@ def is_always_roll(strategy, goal=GOAL):
 
 ### Q8: make_averaged（2 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 Implement `make_averaged`, a higher-order function that takes a function `fn` and returns a function that computes the average of `fn` called a total of `times_called` times when called.
 
@@ -1114,7 +1114,7 @@ def make_averaged(original_function, times_called=1000):
 
 ### Q9: max_scoring_num_rolls（2 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 Implement `max_scoring_num_rolls`, which returns the number of dice (1 to 10) that gives the maximum average score for a turn. Use `make_averaged` to measure the average score for each num_rolls from 1 to 10. If two num_rolls give the same average, return the smaller one.
 
@@ -1198,7 +1198,7 @@ def max_scoring_num_rolls(dice=six_sided, times_called=1000):
 
 `run_experiments()` 内部调用 `max_scoring_num_rolls(six_sided)` 打印最优骰子数，然后把 `always_roll(6)` 作为 baseline，让每个候选策略跟它各打 1000 局，统计胜率。
 
-#### 实际跑出的结果（2026-11-13）
+**实际跑出的结果（2026-11-13）**
 
 ```
 Max scoring num rolls for six-sided dice: 6
@@ -1211,7 +1211,7 @@ sus_strategy win rate:   0.4965      ← 占位值，同上
 final_strategy win rate: 0.5235      ← 占位值，模板写的 return 6，随机波动
 ```
 
-#### 关键观察
+**关键观察**
 
 | 观察 | 解读 |
 |---|---|
@@ -1220,7 +1220,7 @@ final_strategy win rate: 0.5235      ← 占位值，模板写的 return 6，随
 | boar_strategy / sus_strategy 现在是占位值 | 模板里写的是 `return num_rolls`（等于 always_roll(6)），等 Q10/Q11 实现后胜率应该 > 0.51 |
 | final_strategy 暂时不用看 | 模板写的是 `return 6`，真实实现要等 Q12 |
 
-#### 胜率怎么算的（`average_win_rate`）
+**胜率怎么算的（`average_win_rate`）**
 
 ```python
 # hog.py 里已实现：
@@ -1234,7 +1234,7 @@ def average_win_rate(strategy, baseline=always_roll(6)):
 - **同时测先手和后手**，再取平均——抵消 Hog 先手优势的影响
 - 胜率 > 0.5 = 比基线好；< 0.5 = 比基线差
 
-#### 整个 Phase 2 的逻辑链
+**整个 Phase 2 的逻辑链**
 
 ```
 Q9 算出 always_roll(6) 是基线
@@ -1252,7 +1252,7 @@ Q10 / Q11 / Q12 各自想办法在基线之上加条件决策
 
 ### Q10: boar_strategy（2 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 Implement `boar_strategy`, which returns 0 dice if Boar Brawl gives at least `threshold` points, and returns `num_rolls` otherwise. Ignore `score` and Sus Fuss.
 
@@ -1327,7 +1327,7 @@ def boar_strategy(score, opponent_score, threshold=11, num_rolls=6):
 
 ### Q11: sus_strategy（2 pt）
 
-**原版题目（英文）**
+**原题（English）**
 
 Implement `sus_strategy`, which returns 0 dice when your score would increase by at least `threshold` after rolling 0 dice (Boar Brawl) and applying Sus Fuss. Otherwise, return `num_rolls`.
 
@@ -1402,7 +1402,7 @@ def sus_strategy(score, opponent_score, threshold=11, num_rolls=6):
 
 ### Q12: final_strategy（0 pt，可选）
 
-**原版题目（英文）**
+**原题（English）**
 
 > Implement `final_strategy`, which combines these ideas and any other ideas you have to achieve a high win rate against the baseline strategy. Some suggestions:
 >
@@ -1463,16 +1463,14 @@ Step 5【胶着默认】：以上都不触发 → 扔 4 颗或 6 颗
 
 ---
 
-## Interlude: UI 与实验
-
 **三种跑法**
 
 | 命令 | 作用 |
 |---|---|
-| `python3 hog.py -n` | 打印游戏事件（回合、得分、输赢） |
-| `python3 hog.py -i` | 交互模式：让你手动输入 num_rolls |
-| `python3 hog.py -r` | 跑 `run_experiments()`：打印 always_roll(6)、boar_strategy、sus_strategy、final_strategy 的赢率对比 |
-| `python3 hog.py` | 直接启动（会先尝试 GUI，没 Tkinter 则走打印模式） |
+| `python hog.py -n` | 打印游戏事件（回合、得分、输赢） |
+| `python hog.py -i` | 交互模式：让你手动输入 num_rolls |
+| `python hog.py -r` | 跑 `run_experiments()`：打印策略胜率对比 |
+| `python hog.py` | 直接启动（先尝试 GUI，没 Tkinter 走打印模式） |
 
 ---
 
@@ -1500,20 +1498,22 @@ Hog 总分为 16：Q0 0 + Q1 2 + Q2 2 + Q3 2 + Q4 2 + Q5 4 + Q6 2 + Q7 2 + Q8 2 
 
 ---
 
-## 总结：做完 Hog 学到了什么
+## 本次踩的坑
 
-### 代码结构的核心洞见
+| 坑 | 教训 |
+|---|---|
+| `while x in range(n)` 以为会自动声明 x → NameError | Python `for` vs `while` 的本质区别——`for range` 是迭代器驱动，变量自动声明；`while` 必须手动初始化变量 |
+| `while score0 < goal or score1 < goal` 写成 `or` 死循环 | 逻辑运算符在 while 条件里的语义——"继续循环"的条件是"双方都没到 goal"→ `and` |
+| 解锁题里以为 sus 一定触发 → 两次猜 0 但正确答案是 2 | 必须实际跑逻辑、不能脑补——sus 不是每回合都有，要看真实的新总分 |
+| 以为 Q9 返回的是随机值 → 其实是**固定统计结论**（同样骰子跑多次结果近似稳定） | 随机过程 + 大量采样 = 确定性统计量 |
 
-> **把模拟器和策略分开**。
->
-> `play(strategy0, strategy1, update)` 不知道 Hog 的规则是什么，`strategy` 也不知道游戏怎么跑。两者之间的接口只是"函数对象"——这就是 CS61A 让你写高阶函数的原因。
->
-> 这种分层是真实工程里的标准做法：
-> - 后端（模拟器）= 固定逻辑，只负责跑
-> - 前端/插件（策略）= 可插拔逻辑，随便换
-> - 两者通过函数签名（接口契约）解耦
+## 相关概念
 
-### 学到的可迁移技能
+**代码结构的核心洞见**
+
+> **把模拟器和策略分开**。`play(strategy0, strategy1, update)` 不知道 Hog 的规则是什么，`strategy` 也不知道游戏怎么跑。两者之间的接口只是"函数对象"——这就是 CS61A 让你写高阶函数的原因。这种分层是真实工程里的标准做法：后端（模拟器）= 固定逻辑，只负责跑；前端/插件（策略）= 可插拔逻辑，随便换；两者通过函数签名（接口契约）解耦。
+
+**可迁移技能**
 
 | 在 Hog 里练的 | 迁移到 |
 |---|---|
@@ -1521,18 +1521,9 @@ Hog 总分为 16：Q0 0 + Q1 2 + Q2 2 + Q3 2 + Q4 2 + Q5 4 + Q6 2 + Q7 2 + Q8 2 
 | 先造一次 `make_averaged(roll_dice, 1000)` 再循环用 | 工厂模式 / 对象池 |
 | 闭包记住 `n` / `threshold` | 前端 useState 的概念、类的实例变量 |
 | `*args` 包装任意参数数量的函数 | 写通用工具库、Logger 包装 |
-| 用 `python3 hog.py -r` 跑实验看胜率 | A/B 测试、机器学习调参 |
+| 用 `python hog.py -r` 跑实验看胜率 | A/B 测试、机器学习调参 |
 | 测试里用 `make_test_dice` 去掉随机性 | 真实工程里用 mock 对象、固定随机种子 |
 
-### 真实踩过的坑
-
-| 坑 | 教训 |
-|---|---|
-| `while x in range(n)` 以为会自动声明 x → NameError | Python `for` vs `while` 的本质区别——`for range` 是迭代器驱动，变量自动声明 |
-| `while score0 < goal or score1 < goal` 写成 `or` 死循环 | 逻辑运算符在 while 条件里的语义——"继续循环"的条件是"双方都没到 goal"→ `and` |
-| 解锁题里以为 sus 一定触发 → 两次猜 0 但正确答案是 2 | 必须实际跑逻辑、不能脑补——sus 不是每回合都有 |
-| 以为 Q9 返回的是随机值 → 其实是**固定统计结论**（同样骰子跑多次结果近似稳定） | 随机过程 + 大量采样 = 确定性统计量 |
-
-### 一句话复盘
+**一句话复盘**
 
 > Hog = 16 分的小项目，但它把**控制流 → 高阶函数 → 闭包 → 蒙特卡洛**这条线串起来了。做完之后再看 HW02 的 `make_repeater`、HW04 的 decorator、甚至 Lec05 的 `*args/**kwargs`，都会觉得"哦原来之前做过类似的"。

@@ -1,12 +1,23 @@
 ---
-hw: 02
+type: hw
+id: "02"
 title: Higher-Order Functions
-status: completed
+status: complete
+source: SOURCE/CS61A-Website-Archive/hw/hw02/index.html
+solution: SOURCE/CS61A-Website-Archive/hw/sol-hw02/index.html
+code: MY/CS61A-Assignments/HW/hw02/hw02.py
+lectures: Lec04
+due: TBD
 ---
 
 # Homework 2: Higher-Order Functions
 
-> **原始题目**: `SOURCE/CS61A-Website-Archive/hw/hw02/index.html`
+- **题目来源**：`SOURCE/CS61A-Website-Archive/hw/hw02/index.html`
+- **官方解答（仅卡死时看）**：`SOURCE/CS61A-Website-Archive/hw/sol-hw02/index.html`
+- **Starter 基线**：`SOURCE/CS61A-Website-Archive/hw/hw02/hw02.zip`
+- **我的代码**：`MY/CS61A-Assignments/HW/hw02/hw02.py`
+- **关联讲次**：Lec04 · Higher-Order Functions，教材 Section 1.6
+- **Due**：TBD
 
 ---
 
@@ -51,9 +62,11 @@ increment = lambda x: x + 1
 
 ## Required Questions
 
-### Q1: Product
+### Higher-Order Functions
 
-**原版题目（英文）**
+#### Q1: Product
+
+**原题（English）**
 
 > Write a function called `product` that returns the product of the first `n` terms of a sequence. Specifically, `product` takes in an integer `n` and `term`, a single-argument function that determines a sequence. (That is, `term(i)` gives the `i`th term of the sequence.) `product(n, term)` should return `term(1) * ... * term(n)`.
 
@@ -93,7 +106,7 @@ def product(n, term):
     return total
 ```
 
-**逐步思路**：初始值 1（乘法单位元），递减写法 `n > 0` 确保乘到 `term(1)`，`term` 必须调用 `term(n)` 不能当数值。
+**思路**：初始值 1（乘法单位元），递减写法 `n > 0` 确保乘到 `term(1)`，`term` 必须调用 `term(n)` 不能当数值。
 
 **关联知识点**
 
@@ -110,9 +123,9 @@ def product(n, term):
 
 ---
 
-### Q2: Accumulate
+#### Q2: Accumulate
 
-**原版题目（英文）**
+**原题（English）**
 
 > Let's take a look at how `product` is an instance of a more general function called `accumulate`, which we would like to implement:
 
@@ -211,7 +224,7 @@ def product_using_accumulate(n, term):
     return accumulate(mul, 1, n, term)
 ```
 
-**逐步思路**
+**思路**
 
 - 从 Q1 出发：把写死的 `1 → start`、`* → fuse(total, term(n))` 两处改成参数
 - `n = 0` 时循环不进，直接返回 `start`（doctest `accumulate(add, 11, 0, identity) → 11`）
@@ -236,9 +249,9 @@ def product_using_accumulate(n, term):
 
 ---
 
-### Q3: Make Repeater
+#### Q3: Make Repeater
 
-**原版题目（英文）**
+**原题（English）**
 
 > Implement the function `make_repeater` which takes a one-argument function `f` and a positive integer `n`. It returns a one-argument function, where `make_repeater(f, n)(x)` returns the value of `f(f(...f(x)...))` in which `f` is applied `n` times to `x`. For example, `make_repeater(square, 3)(5)` squares 5 three times and returns 390625, just like `square(square(square(5)))`.
 
@@ -275,7 +288,7 @@ def make_repeater(f, n):
     return do_repeat
 ```
 
-**逐步思路**
+**思路**
 
 - 先造内层函数 `do_repeat(x)`：它接收最终那个 x，内部循环 n 次套 f
 - 内层用自己的循环变量 `i` 递增到 `n`，外层的 `f` 和 `n` **只读不写**（闭包）
