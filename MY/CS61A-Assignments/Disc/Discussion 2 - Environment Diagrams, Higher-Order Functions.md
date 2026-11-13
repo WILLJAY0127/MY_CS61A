@@ -17,7 +17,7 @@ due: 2024-09-13
 - **关联讲次**：Lec04 · Higher-Order Functions / Lec05 · Environments
 - **Due**：2024-09-13
 
----
+***
 
 ## 总起
 
@@ -33,19 +33,19 @@ due: 2024-09-13
 
 **题目地图**
 
-| 题号 | 题名 | 类型 | 核心 |
-|---|---|---|---|
-| Q1 | Warm Up | WWPD（嵌套 lambda） | `(lambda x: 2 * (lambda x: 3)(4) * x)(5)` 求值 |
-| — | Call Expressions | 环境图纸笔题 | `team + dream` 代码的完整环境图 |
-| Q2 | Make Keeper | 写代码（高阶函数） | 返回函数，接收 `cond`，打印 1..n 中满足条件的数 |
-| Q3 | Digit Finder | 写代码（lambda + 数字） | 返回函数，提取 x 的第 k 位数字 |
-| Q4 | Match Maker | 写代码（闭包 + 数字） | 返回函数，检查 x 中相隔 k 位的数字是否全相同 |
+| 题号 | 题名               | 类型               | 核心                                           |
+| -- | ---------------- | ---------------- | -------------------------------------------- |
+| Q1 | Warm Up          | WWPD（嵌套 lambda）  | `(lambda x: 2 * (lambda x: 3)(4) * x)(5)` 求值 |
+| —  | Call Expressions | 环境图纸笔题           | `team + dream` 代码的完整环境图                      |
+| Q2 | Make Keeper      | 写代码（高阶函数）        | 返回函数，接收 `cond`，打印 1..n 中满足条件的数               |
+| Q3 | Digit Finder     | 写代码（lambda + 数字） | 返回函数，提取 x 的第 k 位数字                           |
+| Q4 | Match Maker      | 写代码（闭包 + 数字）     | 返回函数，检查 x 中相隔 k 位的数字是否全相同                    |
 
 **对应讲义**：Lec04 · Higher-Order Functions / Lec05 · Environments，教材 Section 1.6 + 环境图规则
 
----
+***
 
-## Getting Started [5 minutes]
+## Getting Started \[5 minutes]
 
 ### Q1: Warm Up
 
@@ -82,9 +82,9 @@ What is the value of `result` after executing `result = (lambda x: 2 * (lambda x
 - 以为 `(lambda x: 3)(4)` 里的 `4` 参与了计算 → 没有，body 是常量 3，参数根本没用
 - 运算优先级搞错：以为 `2 * (lambda x: 3)(4) * x` 里 `2 *` 先算 → 不是，先算 call expression
 
----
+***
 
-## Call Expressions [15 minutes]
+## Call Expressions \[15 minutes]
 
 **原题（English）**
 
@@ -103,11 +103,67 @@ work, t = 3, abs
 team = dream(team, work + 1) and t
 ```
 
-（待推导）
+**最终状态**（核心产出）
 
----
+| 帧      | 名字    | 绑定值                           |
+| ------ | ----- | ----------------------------- |
+| Global | team  | `abs`（Python 内置函数）            |
+| Global | dream | function dream（parent=Global） |
+| Global | work  | 3                             |
+| Global | t     | `abs`（**从头到尾没被改**）            |
 
-## Higher-Order Functions [60 minutes]
+> dream 帧里有一个局部 `t = False`，但它只活在 dream 函数的调用帧里，dream return 后帧销毁，那个 t 跟着消失。Global 的 t 从头到尾都是 abs。
+
+**关键追踪步骤**
+
+- `def team(work):` → Global 创建 function team（parent=Global）
+- `def dream(work, s):` → Global 创建 function dream（parent=Global）
+- `work, t = 3, abs` → Global 绑定 work=3，t=**内置函数 abs**（Python 自带的 `abs()`）
+- `team = dream(team, work + 1) and t` → 右边先全算完再写左边
+  - 先算 `dream(team, work + 1)`：
+    - work + 1 = 3 + 1 = 4
+    - 调用 dream（参数 work=function team, s=4），创建 dream 帧（parent=Global）
+    - dream 帧里 `if work(s-2)` → work 是 function team → 调用 `team(s-2) = team(2)`
+      - 创建 team 帧（parent=Global），work=2
+      - `return t(work) - 1` → t 在 team 帧找不到 → 沿 parent=Global 找 → **t=abs** → abs(2) - 1 = 2 - 1 = **1**
+      - team 帧销毁，返回 1
+    - 回到 dream 帧，`work(s-2) = 1` → if 条件为真（1 是真值）
+    - `t = not s` → **dream 帧里创建局部名 t = not 4 = False**（非零整数是 True，not True 是 False）
+    - `return not t` → t 是 False → not False = **True**
+    - dream 帧销毁，返回 True
+  - 现在算 `True and t` → t 是 Global 里的 abs（真值）→ **and 返回 abs**（Python `and` 短路：左边 True 就返回右边的值）
+  - team 绑定到 abs
+
+**考点清单**（这道题一次覆盖 6 条环境图规则）
+
+- **函数内赋值只建局部名**：dream 里的 `t = not s` 是 dream 帧的局部名，Global 的 t 完全不受影响——**这就是为什么最后 t 还是 abs**
+- **同名参数遮蔽外层名字**：dream 的形参也叫 `work`，遮蔽了 Global 的 work=3，但 dream 里没用到 work 的数值，所以没踩坑
+- **名字查找沿 parent 向上**：team 函数里 `return t(work) - 1`，t 在 team 帧找不到 → parent=Global → 找到 abs
+- **赋值右边先全算完，左边统一写回**：`team = dream(team, work + 1) and t` 里的 team 直到右边算完才写左边
+- **Python and/or 返回值不是布尔值**：`True and abs` 返回 abs，不是 True
+- **Python 内置函数 abs**：t 绑定的是 Python 自带的 `abs()`，不是这个文件里定义的任何东西
+
+**验证**
+
+```python
+>>> abs(-5)
+5
+>>> abs(0)
+0
+>>> team(-5)  # team 现在是 abs
+5
+```
+
+**易错点**
+
+- 以为 dream 里 `t = not s` 改了 Global 的 t → **完全没有**，局部名只活在 dream 调用帧里，dream 返回后帧销毁。Global 的 t 从头到尾都是 abs
+- 以为 dream 返回了 function team → dream 返回的是 True（布尔值），但 `True and abs` 最终让 team 绑定到 abs
+- 把 `abs` 当成这个文件里定义的函数 → 它是 Python 内置的，在任何模块里都可以直接用
+- 漏了 dream 调用里嵌套的 team 调用 → dream 是高阶函数调用：`work(s-2)` 里的 work 本身就是一个函数
+
+***
+
+## Higher-Order Functions \[60 minutes]
 
 **原文**
 
@@ -161,7 +217,45 @@ To return a function `f`, include `def f(cond):` as the first line of the implem
 
 **答案**
 
-（做完再补）
+```python
+def make_keeper(n):
+    def keeper(cond):
+        for i in range(1, n + 1):
+            if cond(i):
+                print(i)
+    return keeper
+```
+
+**验证**
+
+```python
+>>> make_keeper(5)(is_even)     # doctest
+2
+4
+>>> make_keeper(5)(lambda x: True)
+1
+2
+3
+4
+5
+>>> make_keeper(5)(lambda x: False)  # Nothing printed
+```
+
+**思路**
+
+两层函数结构：外层 `make_keeper(n)` 接收上界 n，内层 `keeper(cond)` 接收判断函数。内层循环 `for i in range(1, n+1)` 从 1 跑到 n，每轮用 `cond(i)` 判断当前 i 是否满足条件，满足就 print。
+
+**关联知识点**
+
+- 外层返回函数、内层做循环——高阶函数"返回函数"的典型结构
+- `cond` 是**判断函数**（只返回 True/False），跟 Disc 01 Q1 Race 里的 `while tortoise - hare` 同根：把"判断条件"抽象成一个函数，交给调用方传进来
+- 对接 Lec04 · Higher-Order Functions，教材 Section 1.6
+
+**易错点**
+
+- 循环里写成 `cond(n)` 而不是 `cond(i)` → 每次都检查同一个固定值 n，循环变量白跑。这是写高阶函数最常见的变量名混用 bug
+- 忘记 `return keeper` → `make_keeper(n)` 返回 None，调用链 `make_keeper(5)(is_even)` 直接 TypeError
+- 用 `while i <= n` 而不是 `for range` → 记得手动 `i += 1`，否则死循环。两种循环都对，但 `for range` 更简洁安全
 
 ---
 
@@ -207,7 +301,7 @@ def find_digit(k):
 
 （做完再补）
 
----
+***
 
 ### Q4: Match Maker
 
@@ -265,7 +359,7 @@ In each iteration, compare the last digit with the one that is `k` positions bef
 
 （做完再补）
 
----
+***
 
 ## 本次踩的坑
 
@@ -273,6 +367,6 @@ In each iteration, compare the last digit with the one that is `k` positions bef
 
 ## 相关概念
 
-- [[Lab 2 - Higher-Order Functions]] — 高阶函数闭包 / 返回函数的函数，Q2–Q4 的前置知识
-- [[Homework 2 - Higher-Order Functions]] — make_repeater / ffr，高阶函数同源题
+- \[\[Lab 2 - Higher-Order Functions]] — 高阶函数闭包 / 返回函数的函数，Q2–Q4 的前置知识
+- \[\[Homework 2 - Higher-Order Functions]] — make\_repeater / ffr，高阶函数同源题
 - Lec05 · Environments（`MY/Weekly/`，待写）— 环境图规则，对接 Call Expressions 区块
