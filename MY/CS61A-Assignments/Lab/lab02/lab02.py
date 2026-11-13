@@ -18,7 +18,6 @@ def composite_identity(f, g):
         if f(g(x)) == g(f(x)):
             return True
         return False
-
     return composite
 
 def sum_digits(y):
@@ -65,6 +64,15 @@ def count_cond(condition):
     8
     """
     "*** YOUR CODE HERE ***"
+    def count_primes(n):
+        i = 1
+        count = 0
+        while i <= n:
+            if condition(n , i):
+                count += 1
+            i += 1
+        return count
+    return count_primes
 
 
 def multiple(a, b):

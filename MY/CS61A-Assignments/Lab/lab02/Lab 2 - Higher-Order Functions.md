@@ -709,7 +709,7 @@ def composite_identity(f, g):
 
 Consider the following implementations of count_fives and count_primes which use the sum_digits and is_prime functions from earlier assignments:
 
-> **中文**：先看两个结构几乎一样的实现（用到了之前作业里的 `sum_digits` 和 `is_prime`）。
+> **中文**：先看下面 `count_fives` 和 `count_primes` 的两个实现，它们用到了之前作业里的 `sum_digits` 和 `is_prime`。
 
 ```python
 def count_fives(n):
@@ -748,9 +748,11 @@ def count_primes(n):
 
 The implementations look quite similar! Generalize this logic by writing a function count_cond, which takes in a two-argument predicate function condition(n, i). count_cond returns a one-argument function that takes in n, which counts all the numbers from 1 to n that satisfy condition when called.
 
+> **中文**：两个实现看起来非常相似！把这段逻辑泛化：写一个 `count_cond`，它接收一个双参数谓词函数 `condition(n, i)`。`count_cond` 返回一个只接收 `n` 的单参数函数；调用这个返回的函数时，它会数出 1 到 n 中所有让 `condition(n, i)` 为真的数字的个数。
+
 Note: When we say condition is a predicate function, we mean that it is a function that will return True or False.
 
-> **中文**：两者几乎一样——把逻辑泛化成 `count_cond(condition)`：收一个双参数谓词 `condition(n, i)`，返回一个收 `n` 的单参数函数，数出 1 到 n 中满足条件的 `i` 的个数。谓词 = 返回 `True` / `False` 的函数。
+> **中文**：所谓谓词函数，指的是会返回 `True` 或 `False` 的函数。
 
 starter 已提供辅助函数（不用重写）：
 
@@ -869,7 +871,44 @@ f = f(g, n)
 g = (lambda y: y())(f)
 ```
 
-（推导做完再补）
+**最终状态**（核心产出）
+
+| 帧 | 名字 | 绑定值 |
+|---|---|---|
+| Global | n | 7 |
+| Global | f | function h（闭包，parent=f2，记住 x=14） |
+| Global | g | 15 |
+
+> Global 里那个旧的 function f₁ 被行 4 `def f(f, x)` 覆盖掉了；最终 f 不是任何 def 产生的函数，而是 g 调用帧 f2 里 def 的闭包 h。
+
+**关键追踪步骤**（只写转折行）
+
+- 行 4 `def f(f, x)` 覆盖 Global 的 f → f 不再是那个收 x 返回 x+1 的函数，变成收 f 和 x 两个参数的 f₂；f₂ 的形参也叫 f，进入调用帧后遮蔽外层的任何 f
+- 行 5 `f = f(g, n)` 右边先全算：调用 f₂（形参 f=function g，x=7）→ f₂ body 是 `return f(x + n)` → 调用 g(7 + n)；g 的 parent=Global，去 Global 找 n=7 → 7+7=14 → g 的调用帧 f2 里 x=14，def h，返回 h；右边算到底得到 function h，**统一写回**左边的 f
+- 行 6 `g = (lambda y: y())(f)` 里那个 lambda 只产函数对象、不写任何绑定；此时 Global 的 f 已经是 function h → 调用 h → h 的 parent=f2，去 f2 找 x=14 → 14 + 1 = 15，写回 g
+
+**考点清单**（这道题一次覆盖了 5 条环境图规则）
+
+- **def 的 parent = 定义帧，不是调用帧**：f₂ 在 Global 里 def，所以 parent=Global；f₂ 里的 `n` 去 Global 找 → 7，**不是**去调用它的 f1 找
+- **闭包的 parent = 外层函数的调用帧**：h 在 g 的调用帧 f2 里 def，所以 h 的 parent=f2，不是 Global；h 能记住 f2 里 x=14 靠的就是这条
+- **def 覆盖 Global 绑定**：行 4 的 def f 把 Global 里原来那个 f₁ 彻底覆盖
+- **同名形参遮蔽外层名字**：f₂ 的第一个形参也叫 f，进入 f1 帧后，裸写的 f 都指形参（function g），不是 Global 的 f₂ 自己
+- **赋值右边先全算完，左边统一写回**：行 5 右边把 f₂、g、h 全走完才写回 f；行 6 执行时 Global 的 f 已经是 h 了，跟 f₂ 毫无关系
+
+**验证**
+
+- 纸笔自测：逐帧画完后用 PythonTutor（tutor.cs61a.org）对答案
+
+**关联知识点**
+
+- 对接 Lec01&02 环境图规则 / Disc02 环境图练习
+- 闭包机制：内层 def 记住外层调用帧的名字
+
+**易错点**
+
+- 把 f₂ 里的 n 当成去 f1 找（应该去 Global，因为 parent=Global）
+- 把 h 的 parent 当成 Global（应该是 f2）
+- 以为行 5 执行时 Global 的 f 会在右边计算中途被覆盖 → 不是，赋值统一写回
 
 ---
 
