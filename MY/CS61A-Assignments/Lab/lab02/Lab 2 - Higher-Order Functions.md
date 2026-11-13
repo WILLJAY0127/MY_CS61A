@@ -1,14 +1,23 @@
 ---
-lab: 02
+type: lab
+id: "02"
 title: Higher-Order Functions, Lambda Expressions
 status: in_progress
+source: SOURCE/CS61A-Website-Archive/lab/lab02/index.html
+solution: SOURCE/CS61A-Website-Archive/lab/sol-lab02/index.html
+code: MY/CS61A-Assignments/Lab/lab02/lab02.py
+lectures: Lec04
+due: 2024-09-11
 ---
 
 # Lab 2: Higher-Order Functions, Lambda Expressions
 
-**原始题目**：`SOURCE/CS61A-Website-Archive/lab/lab02/index.html`
-
-**官方解答参考**：`SOURCE/CS61A-Website-Archive/lab/sol-lab02/index.html`（仅卡死时对答案用）
+- **题目来源**：`SOURCE/CS61A-Website-Archive/lab/lab02/index.html`
+- **官方解答（仅卡死时看）**：`SOURCE/CS61A-Website-Archive/lab/sol-lab02/index.html`
+- **Starter 基线**：`SOURCE/CS61A-Assignments_SOURCE/Lab/lab02/lab02.py`
+- **我的代码**：`MY/CS61A-Assignments/Lab/lab02/lab02.py`
+- **关联讲次**：Lec04 · Higher-Order Functions（教材 Section 1.6）
+- **Due**：2024-09-11
 
 ---
 
@@ -32,7 +41,7 @@ status: in_progress
 
 ## Starter Files
 
-**Original**
+**原文**
 
 Download lab02.zip.
 
@@ -46,7 +55,7 @@ Download lab02.zip.
 
 ## Topics（前置概念）
 
-**Original**
+**原文**
 
 Consult this section if you need a refresher on the material for this lab. It's okay to skip directly to the questions and refer back here should you get stuck.
 
@@ -54,7 +63,7 @@ Consult this section if you need a refresher on the material for this lab. It's 
 
 ### Short Circuiting
 
-**Original**
+**原文**
 
 What do you think will happen if we type the following into Python?
 
@@ -77,7 +86,7 @@ It evaluates to True because Python's and and or operators short-circuit. That i
 | AND | All values are true | The first false value | `False and 1 / 0` evaluates to `False` |
 | OR | At least one value is true | The first true value | `True or 1 / 0` evaluates to `True` |
 
-**Original**
+**原文**
 
 Short-circuiting happens when the operator reaches an operand that allows them to make a conclusion about the expression. For example, and will short-circuit as soon as it reaches the first false value because it then knows that not all the values are true.
 
@@ -87,7 +96,7 @@ If and and or do not short-circuit, they just return the last value; another way
 
 ### Higher-Order Functions
 
-**Original**
+**原文**
 
 Variables are names bound to values, which can be primitives like 3 or 'Hello World', but they can also be functions. And since functions can take arguments of any value, other functions can be passed in as arguments. This is the basis for higher-order functions.
 
@@ -97,7 +106,7 @@ A higher order function is a function that manipulates other functions by taking
 
 **Functions as arguments**
 
-**Original**
+**原文**
 
 In Python, function objects are values that can be passed around.
 
@@ -119,7 +128,7 @@ def scale(f, x, k):
 30
 ```
 
-**Original**
+**原文**
 
 Note that in the body of the call to scale, the function object with the intrinsic name square is bound to the parameter f. Then, we call square in the body of scale by calling f(x).
 
@@ -127,7 +136,7 @@ Note that in the body of the call to scale, the function object with the intrins
 
 **Functions that return functions**
 
-**Original**
+**原文**
 
 Because functions are values, they are valid as return values!
 
@@ -147,13 +156,13 @@ File "<stdin>", line 1, in <module>
 NameError: name 'multiply' is not defined
 ```
 
-**Original**
+**原文**
 
 A call to multiply_by returns a function, as expected. However, calling multiply errors, even though that's the name we gave the inner function. This is because the name multiply only exists within the frame where we evaluate the body of multiply_by.
 
 > **中文**：`multiply_by(3)` 返回函数，但直接调 `multiply(4)` 会 `NameError`——`multiply` 这个名字只存在于 `multiply_by` 的调用帧里。
 
-**Original**
+**原文**
 
 So how do we actually use the inner function? Here are two ways:
 
@@ -167,7 +176,7 @@ So how do we actually use the inner function? Here are two ways:
 30
 ```
 
-**Original**
+**原文**
 
 multiply_by would look like if we wrote it with a lambda expression:
 
@@ -180,7 +189,7 @@ def multiply_by(m):
 
 ### Lambda Expressions
 
-**Original**
+**原文**
 
 Lambda expressions are expressions that evaluate to functions by specifying two things: the parameters and a return expression.
 
@@ -190,7 +199,7 @@ lambda <parameters>: <return expression>
 
 > **中文**：lambda 表达式通过「参数 + 返回表达式」求值出一个函数。
 
-**Original**
+**原文**
 
 While both lambda expressions and def statements create function objects, there are some notable differences.
 
@@ -230,7 +239,7 @@ square(3)
 
 ### Environment Diagrams
 
-**Original**
+**原文**
 
 Environment diagrams are one of the best learning tools for understanding lambda expressions and higher order functions because you're able to keep track of all the different names, function objects, and arguments to functions. We highly recommend drawing environment diagrams or using Python tutor if you get stuck doing the WWPD problems below.
 
@@ -238,7 +247,7 @@ Environment diagrams are one of the best learning tools for understanding lambda
 
 **Assignment Statements**
 
-**Original**
+**原文**
 
 1. Evaluate the expression on the right hand side of the = sign.
 2. If the name found on the left hand side of the = doesn't already exist in the current frame, write it in. If it does, erase the current binding. Bind the value obtained in step 1 to this name.
@@ -249,7 +258,7 @@ If there is more than one name/expression in the statement, evaluate all the exp
 
 **def Statements**
 
-**Original**
+**原文**
 
 1. Draw the function object with its intrinsic name, formal parameters, and parent frame. A function's parent frame is the frame in which the function was defined.
 2. If the intrinsic name of the function doesn't already exist in the current frame, write it in. If it does, erase the current binding. Bind the newly created function object to this name.
@@ -258,7 +267,7 @@ If there is more than one name/expression in the statement, evaluate all the exp
 
 **Call expressions**
 
-**Original**
+**原文**
 
 Note: you do not have to go through this process for a built-in Python function like max or print.
 
@@ -272,7 +281,7 @@ Note: you do not have to go through this process for a built-in Python function 
 
 **Lambdas**
 
-**Original**
+**原文**
 
 Note: As we saw in the lambda expression section above, lambda functions have no intrinsic name. When drawing lambda functions in environment diagrams, they are labeled with the name lambda or with the lowercase Greek letter λ. This can get confusing when there are multiple lambda functions in an environment diagram, so you can distinguish them by numbering them or by writing the line number on which they were defined.
 
@@ -286,9 +295,11 @@ This is the only step. We are including this section to emphasize the fact that 
 
 ## Required Questions
 
-### Q1: WWPD: The Truth Will Prevail
+### What Would Python Display?
 
-**Original**
+#### Q1: WWPD: The Truth Will Prevail
+
+**原题（English）**
 
 Important: For all WWPD questions, type Function if you believe the answer is `<function...>`, Error if it errors, and Nothing if nothing is displayed.
 
@@ -300,7 +311,7 @@ Use Ok to test your knowledge with the following "What Would Python Display?" qu
 python ok -q short-circuit -u
 ```
 
-#### 问题 1
+**问题 1**
 
 ```python
 >>> True and 13
@@ -317,7 +328,7 @@ True
 
 ---
 
-#### 问题 2
+**问题 2**
 
 ```python
 >>> True and 1 / 0   # If this errors, just type Error.
@@ -336,7 +347,7 @@ True
 
 ---
 
-#### 问题 3
+**问题 3**
 
 ```python
 >>> print(3) or ""
@@ -348,7 +359,7 @@ True
 
 ---
 
-#### 问题 4
+**问题 4**
 
 ```python
 >>> def f(x):
@@ -368,11 +379,17 @@ True
 
 **说明**：`0` 假 → `or` 求 `f(1)` → `'positive'`。`f(0)` 返回 `'zero'` 为真 → `or` 短路，不再调 `f(-1)`。`and` 左边 `'zero'` 为真 → 必须求右边 `f(-1)` → 返回 `''`。注意 `f(-1)` 返回的是空字符串，不是 `None`。
 
+**关联知识点**
+
+- **短路求值**：`and` / `or` 返回操作数本身，不是布尔值——与 Java 的 `&&` / `||`（结果一定是 boolean）不同
+- **真值测试**：`0`、`""`、`None` 为假，其余为真；这是判断「停在哪」的前提
+- 对接 Lec03 · Control（教材 1.5 短路求值）
+
 ---
 
-### Q2: WWPD: Higher-Order Functions
+#### Q2: WWPD: Higher-Order Functions
 
-**Original**
+**原题（English）**
 
 Important: For all WWPD questions, type Function if you believe the answer is `<function...>`, Error if it errors, and Nothing if nothing is displayed.
 
@@ -425,11 +442,18 @@ sweets
 - `snake(10, 20)` 时 `cake` 和 `more_cake` 指向**同一个函数对象**，`==` 为真 → 返回 `chocolate`（即 `pie` 函数）→ 显示 `Function`；再加 `()` 才调用它，打印 `sweets` 并返回 `'cake'`。
 - 最后 `cake = 'cake'` 只改了 Global 里 `cake` 的绑定，`more_cake` 仍指向函数 → 两者不相等 → 走 `else`，返回 `10 + 20 = 30`。
 
+**关联知识点**
+
+- **函数是一等值**：`chocolate = cake()` 绑定的是返回的函数对象；`cake` 不加括号时只是名字引用
+- **闭包**：`pie` 的函数体能访问 `cake` 调用帧里的局部名字
+- **print vs return**：`beets` / `sweets` 是副作用，`'cake'` 是返回值，WWPD 里分行显示
+- 对接 Lec04 · Higher-Order Functions
+
 ---
 
-### Q3: WWPD: Lambda
+#### Q3: WWPD: Lambda
 
-**Original**
+**原题（English）**
 
 Use Ok to test your knowledge with the following "What Would Python Display?" questions:
 
@@ -439,7 +463,7 @@ Use Ok to test your knowledge with the following "What Would Python Display?" qu
 python ok -q lambda -u
 ```
 
-#### 概念题（Suite 1）
+**概念题（Suite 1）**
 
 **Q1: Which of the following statements describes a difference between a def statement and a lambda expression?**
 
@@ -508,9 +532,9 @@ lambda a, b: c + d
 
 ---
 
-#### WWPD 1（Suite 2 Case 1）
+**WWPD 1（Suite 2 Case 1）**
 
-**Original**
+**原文**
 
 As a reminder, the following two lines of code will not display any output in the interactive Python interpreter when executed:
 
@@ -551,9 +575,9 @@ Function
 
 ---
 
-#### WWPD 2（Suite 2 Case 2）
+**WWPD 2（Suite 2 Case 2）**
 
-**Original**
+**原文**
 
 Try drawing an environment diagram if you get stuck!
 
@@ -585,15 +609,26 @@ Nothing
 - `call_thrice` 把 `f` 连套三次：`f(f(f(0)))` → `1 → 2 → 3`
 - `print_lambda(1000)` 执行 `print(1000)`，屏幕显示 `1000`；但 `print` 返回 `None`，所以 `one_thousand` 求值为 `None` → 解释器不显示 → `Nothing`
 
+**关联知识点**
+
+- **lambda 是表达式**：求值只产生函数对象，不绑定名字（区别于 def）
+- **闭包**：内层 lambda 记住外层调用帧里的 `x`、`y`
+- **print 返回 None**：`one_thousand` 求值为 `None`，解释器不显示
+- 对接 Lec04 · Higher-Order Functions
+
 ---
 
-### Q4: Composite Identity Function
+### Coding Practice
 
-**Original**
+#### Q4: Composite Identity Function
+
+**原题（English）**
 
 Write a function that takes in two single-argument functions, f and g, and returns another function that has a single parameter x. The returned function should return True if f(g(x)) is equal to g(f(x)) and False otherwise. You can assume the output of g(x) is a valid input for f and vice versa.
 
 > **中文**：写 `composite_identity(f, g)`，收两个单参数函数，返回一个单参数函数；返回的函数在 `f(g(x)) == g(f(x))` 时返回 `True`，否则 `False`。可假设 `g(x)` 是 `f` 的合法输入，反之亦然。
+
+**Starter**
 
 ```python
 def composite_identity(f, g):
@@ -613,15 +648,7 @@ def composite_identity(f, g):
     "*** YOUR CODE HERE ***"
 ```
 
-**Original**
-
-Use Ok to test your code:
-
-```bash
-python ok -q composite_identity
-```
-
-**我的写法**
+**答案**
 
 ```python
 def composite_identity(f, g):
@@ -633,13 +660,23 @@ def composite_identity(f, g):
     return composite
 ```
 
-**逐步思路**
+**验证**
+
+```bash
+python ok -q composite_identity
+```
+
+测试通过：`1 test cases passed! No cases failed.`
+
+doctest：`b1(0)` → `square(add_one(0)) = 1`，`add_one(square(0)) = 1` → `True`；`b1(4)` → `square(5) = 25`，`add_one(16) = 17` → `False`。
+
+**思路**
 
 - 外层只负责接住 `f`、`g`，把「一个参数 x」的操作推迟到内层 → 返回 `composite`（函数对象，不加括号）
 - 内层 `composite(x)` 拿到 `x` 后，分别算 `f(g(x))` 和 `g(f(x))`，比较后返回布尔值
 - `composite` 的 parent 帧是 `composite_identity` 的调用帧，`f`、`g` 通过闭包拿到
 
-**可以更短**：`==` 本身就是布尔表达式，`if ... return True / return False` 是多余的，内层一行就够：
+**其他写法（可选）**：`==` 本身就是布尔表达式，`if ... return True / return False` 是多余的，内层一行就够：
 
 ```python
 def composite_identity(f, g):
@@ -652,7 +689,11 @@ def composite_identity(f, g):
     return lambda x: f(g(x)) == g(f(x))
 ```
 
-**验证**：`b1(0)` → `square(add_one(0)) = 1`，`add_one(square(0)) = 1` → `True`；`b1(4)` → `square(5) = 25`，`add_one(16) = 17` → `False`。
+**关联知识点**
+
+- **返回函数**：外层接住 `f`、`g`，内层收 `x`，与 `make_repeater` 是同构的闭包结构
+- **布尔表达式**：`==` 本身产出布尔值，不需要 if 分支
+- 对接 Lec04 · Higher-Order Functions；与 HW02 Q3 `make_repeater` 同源
 
 **易错点**
 
@@ -662,9 +703,9 @@ def composite_identity(f, g):
 
 ---
 
-### Q5: Count Cond
+#### Q5: Count Cond
 
-**Original**
+**原题（English）**
 
 Consider the following implementations of count_fives and count_primes which use the sum_digits and is_prime functions from earlier assignments:
 
@@ -703,7 +744,7 @@ def count_primes(n):
     return count
 ```
 
-**Original**
+**原文**
 
 The implementations look quite similar! Generalize this logic by writing a function count_cond, which takes in a two-argument predicate function condition(n, i). count_cond returns a one-argument function that takes in n, which counts all the numbers from 1 to n that satisfy condition when called.
 
@@ -762,7 +803,7 @@ def count_cond(condition):
     "*** YOUR CODE HERE ***"
 ```
 
-**Original**
+**原文**
 
 Use Ok to test your code:
 
@@ -776,7 +817,7 @@ python ok -q count_cond
 
 ## Check Your Score Locally
 
-**Original**
+**原文**
 
 You can locally check your score on each question of this assignment by running:
 
@@ -792,7 +833,7 @@ This does NOT submit the assignment! When you are satisfied with your score, sub
 
 ## Environment Diagram Practice
 
-**Original**
+**原文**
 
 There is no Gradescope submission for this component.
 
@@ -802,7 +843,7 @@ However, we still encourage you to do this problem on paper to develop familiari
 
 ### Q6: HOF Diagram Practice
 
-**Original**
+**原题（English）**
 
 Draw the environment diagram that results from executing the code below on paper or a whiteboard. Use tutor.cs61a.org to check your work.
 
@@ -834,7 +875,7 @@ g = (lambda y: y())(f)
 
 ## Optional Questions
 
-**Original**
+**原文**
 
 These questions are optional. If you don't complete them, you will still receive credit for this assignment. They are great practice, so do them anyway!
 
@@ -842,7 +883,7 @@ These questions are optional. If you don't complete them, you will still receive
 
 ### Q7: Multiple
 
-**Original**
+**原题（English）**
 
 Write a function that takes in two numbers and returns the smallest number that is a multiple of both.
 
@@ -860,7 +901,7 @@ def multiple(a, b):
     "*** YOUR CODE HERE ***"
 ```
 
-**Original**
+**原文**
 
 Use Ok to test your code:
 
@@ -874,7 +915,7 @@ python ok -q multiple
 
 ### Q8: I Heard You Liked Functions...
 
-**Original**
+**原题（English）**
 
 Define a function cycle that takes in three functions f1, f2, and f3, as arguments. cycle will return another function g that should take in an integer argument n and return another function h. That final function h should take in an argument x and cycle through applying f1, f2, and f3 to x, depending on what n was. Here's what the final function h should do to x for a few values of n:
 
@@ -919,7 +960,7 @@ def cycle(f1, f2, f3):
     "*** YOUR CODE HERE ***"
 ```
 
-**Original**
+**原文**
 
 Use Ok to test your code:
 
@@ -931,7 +972,7 @@ python ok -q cycle
 
 ---
 
-## 本次踩的坑 → 是否要补进 Common_Pitfalls
+## 本次踩的坑
 
 （做完再补）
 

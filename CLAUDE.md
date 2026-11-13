@@ -195,6 +195,8 @@ status: <complete / 待补哪阶段>
 
 ### HW/Lab/Disc 笔记固定格式
 
+> **结构以 [`MY/Knowledge/Assignment_Note_Template.md`](file:///d:/myfile/MY_CS61A/MY/Knowledge/Assignment_Note_Template.md) 为唯一标准**：H1 官方标题 → 标题层级逐级照抄官方页面目录（H2/H3/H4 原顺序、原名，可加中文括注，保留 What Would Python Display? / Coding Practice 等分组）→ 题内只用加粗标签，不用标题。下面的旧骨架仅保留方法论说明。
+
 ```markdown
 ---
 assignment: HW01 / Lab00 / Disc01 ...
@@ -227,6 +229,7 @@ status: <进行中 / complete>
 ```
 
 **规则**:
+- **笔记骨架统一复制 [`MY/Knowledge/Assignment_Note_Template.md`](file:///d:/myfile/MY_CS61A/MY/Knowledge/Assignment_Note_Template.md)**，不自拟章节名与标题层级
 - 禁止直接给答案——"不直接给答案,只帮我找到思路的漏洞"
 - 拆成最小具体步骤引导,而非一次性讲全(Jace 会说"不知道 完全不会")
 - "先跑过再说优化,别跳步骤"
@@ -237,6 +240,8 @@ status: <进行中 / complete>
 ## Project 独立闭环(Hog / Cats / Ants / Scheme)
 
 四个大项目跟 HW/Lab/Disc 是同一套苏格拉底式精神,但**没有官方参考实现**(`SOURCE/CS61A-Website-Archive/proj/` 只有题目页 + starter zip,没有 sol),而且项目周期长、有 Checkpoint,笔记要能跟着进度多次更新,不是一次性写完。
+
+**Project 笔记与 Lab 共用同一套题内结构（[`MY/Knowledge/Assignment_Note_Template.md`](file:///d:/myfile/MY_CS61A/MY/Knowledge/Assignment_Note_Template.md) 第 5.1 节），仅 frontmatter 用 `type: project`、`solution: none`；标题层级照官方项目页（Hog 是 Phase 1 / Phase 2），不另设骨架。**
 
 落盘到 `MY/Projects/01_Hog/`(依次 02_Cats、03_Ants、04_Scheme),同目录下:
 
