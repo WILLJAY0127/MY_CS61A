@@ -1159,6 +1159,66 @@ def max_scoring_num_rolls(dice=six_sided, times_called=1000):
 
 ---
 
+### Running Experiments（官网插在 Q9 和 Q10 之间的实验环节）
+
+> 原文定位：Phase 2 开头，官方用来让学生在继续写策略之前，先用 Q9 的结论建立一个"各种策略大概多少胜率"的基准印象。
+
+**命令**：`python3 hog.py -r`
+
+`run_experiments()` 内部调用 `max_scoring_num_rolls(six_sided)` 打印最优骰子数，然后把 `always_roll(6)` 作为 baseline，让每个候选策略跟它各打 1000 局，统计胜率。
+
+#### 实际跑出的结果（2026-11-13）
+
+```
+Max scoring num rolls for six-sided dice: 6
+always_roll(6) win rate: 0.5065      ← baseline，略高于 0.5（随机波动）
+catch_up win rate:       0.498        ← 简单的"落后时扔 6、否则扔 5"，没比基线好
+always_roll(3) win rate: 0.3795      ← 扔太少，追不上
+always_roll(8) win rate: 0.469       ← 扔太多，Sow Sad 概率高
+boar_strategy win rate:  0.498       ← 占位值，模板写的 return num_rolls（没实现）
+sus_strategy win rate:   0.4965      ← 占位值，同上
+final_strategy win rate: 0.5235      ← 占位值，模板写的 return 6，随机波动
+```
+
+#### 关键观察
+
+| 观察 | 解读 |
+|---|---|
+| **always_roll(6) 胜率 > always_roll(8) > always_roll(3)** | Q9 的"扔 6 颗平均分最高"结论**直接对应**胜率高低——这就是 Q9 统计的意义 |
+| baseline 略高于 0.5 | 1000 局采样有随机误差，重复跑会在 0.49~0.52 之间波动 |
+| boar_strategy / sus_strategy 现在是占位值 | 模板里写的是 `return num_rolls`（等于 always_roll(6)），等 Q10/Q11 实现后胜率应该 > 0.51 |
+| final_strategy 暂时不用看 | 模板写的是 `return 6`，真实实现要等 Q12 |
+
+#### 胜率怎么算的（`average_win_rate`）
+
+```python
+# hog.py 里已实现：
+def average_win_rate(strategy, baseline=always_roll(6)):
+    win_rate_as_player_0 = 1 - make_averaged(winner)(strategy, baseline)
+    win_rate_as_player_1 = make_averaged(winner)(baseline, strategy)
+    return (win_rate_as_player_0 + win_rate_as_player_1) / 2
+```
+
+- **每个策略 vs baseline**，不是策略互相打
+- **同时测先手和后手**，再取平均——抵消 Hog 先手优势的影响
+- 胜率 > 0.5 = 比基线好；< 0.5 = 比基线差
+
+#### 整个 Phase 2 的逻辑链
+
+```
+Q9 算出 always_roll(6) 是基线
+    ↓
+run_experiments 把所有策略拉出来跟基线比
+    ↓
+Q10 / Q11 / Q12 各自想办法在基线之上加条件决策
+    ↓
+最终目标：final_strategy 胜率 > 0.51（官方预期）
+```
+
+官网允许你改 `run_experiments`——比如给 boar_strategy 多试几个 threshold，找最优值。但那是项目 report 阶段才要做的事，现在先写完 Q10/Q11 把占位值换成真实策略。
+
+---
+
 ### Q10: boar_strategy（2 pt）
 
 **原版题目（英文）**
@@ -1181,18 +1241,46 @@ def boar_strategy(score, opponent_score, threshold=11, num_rolls=6):
     # END PROBLEM 10
 ```
 
-**Ok 验证**：`python3 ok -q 10 -u` → `python3 ok -q 10`
+**Ok 验证**：`python3 ok -q 10 -u` → `python3 ok -q 10` → **11/11 通过**
 
-**逐步思路**
+**解锁验证**
+
+| Case | 输入 | boar_brawl 计算 | 结果 | 正确 |
+|---|---|---|---|---|
+| Suite 1-1 | `(40, 51, threshold=7, num_rolls=2)` | 自己个位 0，对手十位 5 → 3×5=15 ≥ 7 | **0** | ✅ |
+| Suite 1-2 | `(40, 51, threshold=15, num_rolls=7)` | 同上 = 15 ≥ 15 | **0** | ✅ |
+| Suite 1-3 | `(40, 51, threshold=16, num_rolls=7)` | 15 < 16 | **7** | ✅ |
+| Suite 1-4 | `(44, 53, threshold=3, num_rolls=2)` | 自己个位 4，对手十位 5 → 3×1=3 ≥ 3 | **0** | ✅ |
+| Suite 1-5 | `(44, 53, threshold=4, num_rolls=2)` | 3 < 4 | **2** | ✅ |
+| Suite 1-6 | `(40, 31, threshold=9, num_rolls=5)` | 自己个位 0，对手十位 3 → 3×3=9 ≥ 9 | **0** | ✅ |
+| Suite 1-7 | `(40, 31, threshold=10, num_rolls=5)` | 9 < 10 | **5** | ✅ |
+| Suite 1-8 | `(40, 52, threshold=15, num_rolls=2)` | 自己个位 0，对手十位 5 → 3×5=15 ≥ 15 | **0** | ✅ |
+| Suite 1-9 | `(40, 52, threshold=16, num_rolls=2)` | 15 < 16 | **2** | ✅ |
+
+9 个解锁题**全部一次答对**——因为就是一个 if/else 条件判断。解锁题故意设计在阈值边界（≥ 变成 < 那一瞬间切换），测试你是不是把 `>=` 写对了。
+
+**答案代码**
 
 ```python
 def boar_strategy(score, opponent_score, threshold=11, num_rolls=6):
-    if boar_brawl(score, opponent_score) >= threshold:
+    bb_points = boar_brawl(score, opponent_score)
+    if bb_points >= threshold:
         return 0
     return num_rolls
 ```
 
-一行 if/else——难度很低。
+**逐步思路**
+
+1. 先调 Q2 写好的 `boar_brawl(score, opponent_score)` 算一下当前 Boar Brawl 理论能得多少分——自己个位 vs 对手十位，不用自己重算
+2. 跟 `threshold` 比：**≥ 就返回 0（扔 0 颗骰子），< 就返回 `num_rolls`**
+3. 阈值默认 11（官网经验值，见 Running Experiments 章节讨论），默认颗数 6（Q9 最优）
+
+一行 if/else——Phase 2 里最简单的策略函数。
+
+**关键理解**
+
+- **忽略 Sus Fuss**：题目明确说，boar_strategy 只考虑 Boar Brawl 一条规则。Sus Fuss 的事留给 Q11 叠加进去
+- **threshold 和 num_rolls 的来源**：num_rolls=6 是 Q9 算出来的最优固定颗数；threshold=11 是官网凭经验定的保守门槛（boar_brawl 最低 1 分、最高 27 分，扔 6 颗期望约 18 分——11 是"虽然比期望低，但 boar_brawl 零 Sow Sad 风险"的折中点）
 
 **关联知识点**
 
@@ -1226,44 +1314,58 @@ def sus_strategy(score, opponent_score, threshold=11, num_rolls=6):
     # END PROBLEM 11
 ```
 
-**Ok 验证**：`python3 ok -q 11 -u` → `python3 ok -q 11`
+**Ok 验证**：`python3 ok -q 11 -u` → `python3 ok -q 11` → **9/9 通过**
 
-**逐步思路**
+**解锁验证**
+
+| Case | 输入 | boar_brawl | sus？ | growth | threshold | 结果 | 你的第一选 |
+|---|---|---|---|---|---|---|---|
+| Suite 1-1 | `(31, 21, t=10, n=2)` | 自己个位 1，对手十位 2 → 3×1=3 | 34 有 4 个因子 ✅ → sus_points(34)=37 → growth=6 | 6 | 10 | **2**（都不够） | ❌ 先猜空 |
+| Suite 1-2 | `(30, 41, t=10, n=2)` | 自己个位 0，对手十位 4 → 3×4=12 | boar 直接 12 ≥ 10 | — | 10 | **0**（boar 直接够） | ✅ |
+| Suite 1-3 | `(53, 60, t=14, n=2)` | 自己个位 3，对手十位 6 → 3×3=9 | 62 有 4 个因子 ✅ → sus_points(62)=67 → growth=14 | 14 | 14 | **0**（sus 跳完够） | ❌ 先猜 2（只算 boar 没算 sus） |
+| Suite 1-4 | `(53, 60, t=15, n=2)` | 同上 boar=9 | growth=14 | 14 | 15 | **2**（sus 跳完还不够） | ✅ |
+| Suite 1-5 | `(23, 54, t=4, n=2)` | 自己个位 3，对手十位 5 → 3×2=6 | boar 直接 6 ≥ 4 | — | 4 | **0**（boar 直接够） | ✅ |
+| Suite 1-6 | `(14, 21, t=8, n=2)` | 自己个位 4，对手十位 2 → 3×2=6 | 20 有 6 个因子 ❌ → sus_points(20)=20 → growth=6 | 6 | 8 | **2**（都不够） | ❌ 两次猜 0（假设 sus 会触发） |
+| Suite 1-7 | `(14, 21, t=12, n=5)` | 同上 boar=6 | growth=6 | 6 | 12 | **5**（都不够） | ✅ |
+
+7 道解锁题里 **3 道 first try 错**——都是因为**漏了 sus 不一定触发**这个点。Case 3（sus 帮你跳够了）和 Case 6（sus 不触发，白期待）正好是两个相反的陷阱。
+
+**答案代码**
 
 ```python
 def sus_strategy(score, opponent_score, threshold=11, num_rolls=6):
-    # 先算 boar_brawl 理论能得多少分
     boar = boar_brawl(score, opponent_score)
     if boar >= threshold:
         return 0
-    return num_rolls
-```
-
-等等——官网说"额外考虑 Sus Fuss"，实际 sus_strategy 的判断逻辑是**扔 0 颗之后分数会不会因为 sus 规则跳质数、跳了之后增长更大**。完整写法：
-
-```python
-def sus_strategy(score, opponent_score, threshold=11, num_rolls=6):
-    boar = boar_brawl(score, opponent_score)
-    # 如果 boar ≥ threshold，直接返回 0（和 boar_strategy 一样）
-    # 如果 boar 不够 threshold，但加上 sus 后足够了呢？
-    # 先算扔 0 颗后的分数（boar + score）
     next_score = sus_points(score + boar)
-    # sus 触发的话 next_score > score + boar，增长 = next_score - score
     growth = next_score - score
     if growth >= threshold:
         return 0
     return num_rolls
 ```
 
-**关联知识点**
+**逐步思路**
 
-- 策略链：sus_strategy 本质是 boar_strategy 的增强版，先算 boar_brawl、再 sus_points 包装、再看总增长。
-- sus_points 是 Q4 写好的——再次复用小函数。
+1. 先调 Q2 写好的 `boar_brawl(score, opponent_score)` 算 boar 理论得分
+2. **情况 1：boar 直接 ≥ threshold** → 返回 0（跟 Q10 boar_strategy 一样，sus 不 sus 都不用算了）
+3. **情况 2：boar < threshold，但 sus 跳后总增长够**：
+   - 先算扔 0 颗后的分数：`score + boar`
+   - 过 sus_points → 得到最终分数（sus 触发就跳质数，不触发就原样返回）
+   - `growth = sus_points(score + boar) - score` —— 真实增长是最终分数减起始分数
+   - 若 growth ≥ threshold → 返回 0
+4. **情况 3：都不够** → 返回 num_rolls
+
+**关键理解**
+
+- **sus 不是每回合都触发**：只有因子数恰好是 3 或 4 才跳。绝大多数分数不是 sus 数，sus_points 原样返回。这就是 Case 6 你两次猜 0 但正确答案是 2 的原因
+- **growth 的定义**：`sus_points(score + boar) - score`。不是 boar 单独得分，也不是 sus 单独增量——是这回合真正赚了多少
+- **boar ≥ threshold 要先判断**：sus_points 是对中间分数做的处理，如果 boar 直接够了，就不需要再算 sus 了（省一步计算）
 
 **易错点**
 
-- **sus_points 里 score 本身就是质数的情况**：比如 score=100（质数？不是，100 不是 sus 数）——sus_points(100) = 100，growth = boar，符合预期。但如果 score 是某个质数且 boar + score 恰好是 sus 数，那 sus_points 会跳；如果 boar + score 不是 sus 数，sus_points 原样返回。
-- **没考虑 sus 跳后增长更大的情况**：直接照搬 boar_strategy 会漏掉"分数本来不 sus，加 boar 后变 sus、跳了质数后增长够 threshold"这一种判断。
+- **假设 sus 一定触发**：最常见的坑。Case 6 的 20 有 6 个因子，不 sus，所以增长只有 boar_brawl 的 6。必须实际跑 sus_points，不能脑补
+- **growth 算错**：不能写成 `sus_points(...) - (score + boar_brawl)`，那只是 sus 单独的增量。正确的是 `sus_points(...) - score`，这才是整个回合的真实增长
+- **boar ≥ threshold 的提前返回漏了**：如果 boar 已经够了，不用算 sus，直接返回 0。否则逻辑上虽然也能走通（sus_points 那行不会错），但多了一次不必要的计算，而且思维上不够清晰
 
 ---
 
@@ -1271,13 +1373,12 @@ def sus_strategy(score, opponent_score, threshold=11, num_rolls=6):
 
 **原版题目（英文）**
 
-Write a `final_strategy(score, opponent_score)` that performs as well as possible against `always_roll(6)`. This is a competition problem—you're encouraged to be creative!
+> Implement `final_strategy`, which combines these ideas and any other ideas you have to achieve a high win rate against the baseline strategy. Some suggestions:
+>
+> 1. If you know the goal score (by default it is 100), there's no benefit to scoring more than the goal. Check whether you can win by rolling 0, 1 or 2 dice. If you are in the lead, you might decide to take fewer risks.
+> 2. Instead of using a threshold, roll 0 whenever it would give you more points on average than rolling 6.
 
-**Hints**:
-
-- You should use `boar_brawl`, `sus_points`, and any other functions you've implemented to help you write your strategy.
-- Think about when rolling 0 dice would be better than rolling `num_rolls` dice.
-- You might want to experiment with different values of `num_rolls` using `max_scoring_num_rolls` and `run_experiments`.
+**官网只有这两条建议**。
 
 **hog.py 代码模板**
 
@@ -1291,6 +1392,43 @@ def final_strategy(score, opponent_score):
     return 6  # Remove this line once implemented.
     # END PROBLEM 12
 ```
+
+**签名注意**：Q10/Q11 有 `threshold=11, num_rolls=6` 默认参数，但 **final_strategy 没有任何额外参数**——所有阈值、默认骰子数必须硬编码在函数体内。
+
+**可以直接复用 hog.py 已有函数**：`boar_brawl(score, opponent_score)` 和 `sus_points(score + bb_gain)`，不要自己再实现一遍。
+
+**Ok 验证**：`python3 ok -q 12`（可选，通过就行，不计分）
+
+**验证胜率**：`python3 hog.py -r`，对比 `final_strategy win rate` 和 `always_roll(6) win rate`
+
+**两条建议的具体含义**
+
+| 建议 | 中文 | 直觉 |
+|---|---|---|
+| **接近 goal 扔 0/1/2 颗就够** | 超过 goal 没意义；score ≥ 98 时扔 1 颗没出 1 就赢了，扔 10 颗反而容易 Sow Sad 归零；领先时要保守 | 越接近胜利越要保守，不是激进 |
+| **不用固定 threshold，改成动态期望值** | boar_strategy / sus_strategy 硬编码 threshold=11。这里建议：算 roll 0 含 sus 后的真实增长 vs 扔 6 颗的期望增长（约 18 分），**谁大扔谁** | 把"该不该扔 0"的判断从"≥ 11 吗"改成"和扔 6 颗的期望比谁大" |
+
+**迭代方向（按优先级从高到低，每步跑 `-r` 验证胜率变化）**
+
+```
+Step 1【必胜，零风险】：roll 0 含 sus 后总分 ≥ 100 → 直接 return 0
+     原因：boar_brawl 零 Sow Sad 风险，能赢就绝不赌骰子
+     
+Step 2【临近终点保守，官网建议 1】：剩余 needed 分少时少扔
+     needed ≤ 4 → 扔 1 颗；needed ≤ 8 → 扔 2 颗
+     原因：剩余分少时 Sow Sad（只拿 1 分）代价极大
+     
+Step 3【Boar 动态期望，官网建议 2】：sus_strategy 的 threshold=11 改成动态比较
+     算 effective_bb = sus_points(score + bb) - score
+     如果 effective_bb ≥ 扔 6 颗期望（约 18 分）→ 扔 0；否则扔 6
+     
+Step 4【领先保守/落后激进，官网建议 1 延伸】：分差博弈
+     领先 15 分以上 → 保守扔 3 颗；落后 15 分以上 → 激进扔 6 颗
+     
+Step 5【胶着默认】：以上都不触发 → 扔 4 颗或 6 颗
+```
+
+**1000 局采样的随机波动约 ±0.01**——final 胜率稳定高于 baseline 0.02+ 才算真的有效。
 
 ---
 
