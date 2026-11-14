@@ -230,6 +230,9 @@ status: <进行中 / complete>
 
 **规则**:
 - **笔记骨架统一复制 [`MY/Knowledge/Assignment_Note_Template.md`](file:///d:/myfile/MY_CS61A/MY/Knowledge/Assignment_Note_Template.md)**，不自拟章节名与标题层级
+- **建新笔记文件前必须先 Read 该模板文件**，不许凭记忆复述规则（模板不会自动进上下文，CLAUDE.md 会自动进）
+- **题目的 Starter 必须从 `index.html` 里 `activateEditor('...')` 的字符串解码后原样摘录**（`\n`、`&quot;`、`&gt;`、`&lt;`、`&#x2d;` 都要还原），含 docstring、doctest、`___` 填空骨架；禁止用 `sol-*` 页面、旧笔记或记忆重建
+- 页面顺序即笔记顺序：`Starter` 在 `提示（Hint）` 之前，`Documentation` / `Recommended` 在 Hint 之后
 - 禁止直接给答案——"不直接给答案,只帮我找到思路的漏洞"
 - 拆成最小具体步骤引导,而非一次性讲全(Jace 会说"不知道 完全不会")
 - "先跑过再说优化,别跳步骤"

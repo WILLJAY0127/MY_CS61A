@@ -370,6 +370,8 @@ python ok -q <测试名> -u
 6. **表格转义**：单元格里的 `|` 写成 `\|`，否则表格错位。
 7. **代码块标语言**：Python 用 ` ```python `，命令用 ` ```bash `。
 8. **通用坑才升级**：同一坑在多题出现，才补进 `MY/Knowledge/Common_Pitfalls.md`；单题特有的坑留在该题「易错点」。
+9. **Starter 只能原样摘录**：Starter 必须从对应 `index.html` 里 `activateEditor('...')` 的字符串**解码后原样**粘贴（`\n` 换行、`&quot;` 引号、`&gt;`/`&lt;`、`&#x2d;` 减号）。**禁止用 `sol-*` 页面、旧笔记或记忆重建骨架**。starter 里的 `if n < 10:`、`___`、`____`、docstring、doctest 全是官方内容，少一个都算错。
+10. **页面顺序即笔记顺序**：官方页面里代码编辑器在 Hint 之前，笔记里 `**Starter**` 就排在 `**提示（Hint）**` 之前；`Documentation` / `Recommended` 这类段落在页面上在 Hint 之后，笔记里也放 Hint 之后。
 
 ---
 
@@ -378,6 +380,7 @@ python ok -q <测试名> -u
 - [ ] 已读本模板，并按对应骨架建文件
 - [ ] Frontmatter 字段齐全
 - [ ] H1 唯一，H2/H3/H4 与官方页面同名同序（含二级分组）
+- [ ] 每题的 Starter 与 `index.html` 里 `activateEditor('...')` 原文逐字一致（含 docstring、doctest、`___` 骨架）
 - [ ] 每题都有「原题（English）」和「> **中文**：」
 - [ ] 未做的题没有预填答案
 - [ ] 验收结果已记录

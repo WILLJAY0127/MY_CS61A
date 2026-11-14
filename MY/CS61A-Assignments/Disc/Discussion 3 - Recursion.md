@@ -68,13 +68,7 @@ Implement `swipe`, which prints the digits of argument `n`, one per line, first 
 
 > **中文**：实现 `swipe(n)`，把 n 的每一位数字逐行打印，先倒序再正序，最左边那位只打印一次。不能用 `while`、`for`、`str`，只能用递归。
 
-**提示（Hint）**
-
-First print the first line of the output, then make a recursive call, then print the last line of the output.
-
-> **中文**：先打印输出的第一行，再递归调用，最后打印输出的最后一行。
-
-**Starter**
+**Starter**（原样摘录）
 
 ```python
 def swipe(n):
@@ -89,8 +83,19 @@ def swipe(n):
     3
     7
     """
-    "*** YOUR CODE HERE ***"
+    if n < 10:
+        print(n)
+    else:
+        "*** YOUR CODE HERE ***"
 ```
+
+> base case 官方已经写好了，你只需要补 `else` 分支。
+
+**提示（Hint）**
+
+First print the first line of the output, then make a recursive call, then print the last line of the output.
+
+> **中文**：先打印输出的第一行，再递归调用，最后打印输出的最后一行。
 
 **答案**
 
@@ -98,11 +103,11 @@ def swipe(n):
 def swipe(n):
     if n < 10:
         print(n)
-        return
-    digit = n % 10
-    print(digit)
-    swipe(n // 10)
-    print(digit)
+    else:
+        digit = n % 10
+        print(digit)
+        swipe(n // 10)
+        print(digit)
 ```
 
 **验证**
@@ -122,7 +127,7 @@ def swipe(n):
 
 **思路**
 
-利用**递归调用夹在两个 print 之间**制造"先倒序、再正序"的效果：
+利用**递归调用夹在两个 print 之间**制造"先倒序、再正序"的效果，`else` 分支里就三步：
 
 1. `print(digit)` —— 先打印末位（倒序那一段）
 2. `swipe(n // 10)` —— 递归处理剩下的高位
@@ -137,7 +142,7 @@ print 7
       swipe(28)
         print 8
           swipe(2)
-            print 2   ← base case，直接返回
+            print 2   ← base case，只打印、不再递归
           print 8
         print 3
       print 7
@@ -153,26 +158,12 @@ print 7
 
 **易错点**
 
-- base case 写成 `if digit < 10` → `n % 10` 的结果永远在 0–9 之间，条件恒真，函数第一层就 return，只打印一个数字。必须判断 `n < 10`
-- 把 `print(digit)` 移到递归之后 → 变成只正序打印，倒序那半段丢了
-- 用 `str(n)` 或索引 → 题目明确禁止
-- `swipe(n=n // 10)` 用关键字传参 → 能跑，但 CS61A 习惯位置参数 `swipe(n // 10)`，考试和阅卷默认这种写法
-
-**我的初稿（有 bug，留作对照）**
-
-对应上面「易错点」第 1、4 条：`left_point < 10` 恒真，只打印一个数字；`swipe(n = n // 10)` 用了关键字传参。
-
-```python
-def swipe(n):
-    left_point = n % 10
-    if left_point < 10:
-        print(left_point)
-        return
-    print(left_point)
-    swipe(n = n // 10)
-    print(left_point)
-    return
-```
+- 改动官方给的 base case（写成 `if left_point < 10` 或 `if digit < 10`）→ 条件恒真（`n % 10` 永远在 0–9），第一层就打印一位然后返回。判断对象必须是 `n`（还剩几位）
+- `else` 里漏掉递归前的 `print(digit)` → 只正序打印 `2 8 3 7`，倒序那半段丢了
+- `else` 里漏掉递归后的 `print(digit)` → 只倒序打印 `7 3 8 2`，正序那半段丢了
+- 两个 `print` 都挤在递归的同侧 → 输出不再被递归"夹"住，变成单调的倒序或正序
+- `swipe(n = n // 10)` 用关键字传参 → 能跑，但 CS61A 默认位置参数 `swipe(n // 10)`
+- 用 `str(n)`、`for`、`while` → 题目明确禁止
 
 ***
 
@@ -180,17 +171,11 @@ def swipe(n):
 
 **原题（English）**
 
-Define the base case for the `skip_factorial` function, which returns the product of every other positive integer, starting with `n`.
+Define the base case for the `skip_factorial` function, which returns the product of **every other positive integer**, starting with `n`.
 
 > **中文**：为 `skip_factorial` 定义 base case，它返回从 n 开始每隔一个取一个的正整数的乘积。
 
-**提示（Hint）**
-
-If `n` is even, then the base case will be `2`. If `n` is odd, then the base case will be `1`. Try to write a condition that handles both possibilities.
-
-> **中文**：n 为偶数时 base case 是 2，为奇数时 base case 是 1。想一个能同时覆盖两种情况的条件。
-
-**Starter**
+**Starter**（原样摘录）
 
 ```python
 def skip_factorial(n):
@@ -201,8 +186,19 @@ def skip_factorial(n):
     >>> skip_factorial(8) # 8 * 6 * 4 * 2
     384
     """
-    "*** YOUR CODE HERE ***"
+    if ___:
+        return ___
+    else:
+        return n * skip_factorial(n - 2)
 ```
+
+> `else` 分支的递归调用官方已经写好，你只填 `___` 两个空。
+
+**提示（Hint）**
+
+If `n` is even, then the base case will be `2`. If `n` is odd, then the base case will be `1`. Try to write a condition that handles both possibilities.
+
+> **中文**：n 为偶数时 base case 是 2，为奇数时 base case 是 1。想一个能同时覆盖两种情况的条件。
 
 **答案**
 
@@ -230,6 +226,21 @@ def is_prime(n):
 You will need to define another "helper" function (a function that exists just to help implement this one). Does it matter whether you define it within `is_prime` or as a separate function in the global frame? Try to define it to take as few arguments as possible.
 
 > **中文**：实现 `is_prime(n)`（n > 1），是质数返回 True，否则 False。参照上面的 while 版本，但**不能用 while/for**，改成递归。你需要再定义一个辅助函数——它定义在 `is_prime` 内部还是全局，有区别吗？尽量让它少收参数。
+
+**Starter**（原样摘录）
+
+```python
+def is_prime(n):
+    """Returns True if n is a prime number and False otherwise.
+    >>> is_prime(2)
+    True
+    >>> is_prime(16)
+    False
+    >>> is_prime(521)
+    True
+    """
+    "*** YOUR CODE HERE ***"
+```
 
 **提示（Hint）**
 
@@ -269,27 +280,12 @@ Recall the `hailstone` function from Homework 1. First, pick a positive integer 
 
 > **中文**：回忆 HW 1 的 hailstone。从正整数 n 开始：偶数就除以 2，奇数就乘 3 加 1，重复直到 n 为 1。补完这个递归版本，打印整个序列并返回步数。
 
-**提示（Hint）**
-
-An even number is never a base case, so even always makes a recursive call to `hailstone` and returns one more than the length of the rest of the hailstone sequence.
-
-An odd number might be 1 (the base case) or greater than one (the recursive case). Only the recursive case should call `hailstone`.
-
-> **中文**：偶数永远不是 base case，所以偶数分支一定递归，并在返回值上加 1。奇数可能是 1（base case）也可能大于 1（递归情况），只有递归情况才调用 hailstone。
-
-**Recommended**
-
-Once your group has converged on a solution, it's time to practice your ability to describe your own code. Nominate someone to describe how your solution works and have them present to the group for practice. Then, tell this description to your TA for feedback.
-
-> **中文**：全组达成一致后，推一个人讲解自己的解法，练"讲代码"的能力，讲给助教听并获取反馈。
-
-**Starter**
+**Starter**（原样摘录）
 
 ```python
 def hailstone(n):
     """Print out the hailstone sequence starting at n,
     and return the number of elements in the sequence.
-
     >>> a = hailstone(10)
     10
     5
@@ -305,8 +301,34 @@ def hailstone(n):
     >>> b
     1
     """
+    print(n)
+    if n % 2 == 0:
+        return even(n)
+    else:
+        return odd(n)
+
+def even(n):
+    return ____
+
+def odd(n):
     "*** YOUR CODE HERE ***"
 ```
+
+> `hailstone` 主体和 `even` 的骨架官方已给，你补 `even` 的返回值表达式和 `odd` 的函数体。
+
+**提示（Hint）**
+
+An even number is never a base case, so even always makes a recursive call to `hailstone` and returns one more than the length of the rest of the hailstone sequence.
+
+An odd number might be 1 (the base case) or greater than one (the recursive case). Only the recursive case should call `hailstone`.
+
+> **中文**：偶数永远不是 base case，所以偶数分支一定递归，并在返回值上加 1。奇数可能是 1（base case）也可能大于 1（递归情况），只有递归情况才调用 hailstone。
+
+**Recommended**
+
+Once your group has converged on a solution, it's time to practice your ability to describe your own code. Nominate someone to describe how your solution works and have them present to the group for practice. Then, tell this description to your TA for feedback.
+
+> **中文**：全组达成一致后，推一个人讲解自己的解法，练"讲代码"的能力，讲给助教听并获取反馈。
 
 **答案**
 
@@ -364,6 +386,42 @@ Then, implement `sevens` which takes a positive integer `n` and a number of play
 An effective approach to this problem is to simulate the game, stopping on turn `n`. The implementation must keep track of the final number `n`, the current number `i`, the player who will say `i`, and the current direction that determines the next player (either increasing or decreasing). It works well to use integers to represent all of these, with direction switching between `1` (increase) and `-1` (decreasing).
 
 > **中文**：报数游戏——从 1 开始顺时针轮流报数；遇到 7 的倍数或数字里含 7 就反向。实现 `sevens(n, k)`，返回 n 个人里第几个玩家报了 n，可以调用 `has_seven`。推荐做法是**模拟**：一直模拟到第 n 个数，跟踪四个量——目标 n、当前数 i、该报 i 的玩家、当前方向（1 或 -1）。
+
+**Starter**（原样摘录）
+
+```python
+def sevens(n, k):
+    """Return the (clockwise) position of who says n among k players.
+
+    >>> sevens(2, 5)
+    2
+    >>> sevens(6, 5)
+    1
+    >>> sevens(7, 5)
+    2
+    >>> sevens(8, 5)
+    1
+    >>> sevens(9, 5)
+    5
+    >>> sevens(18, 5)
+    2
+    """
+    def f(i, who, direction):
+        if i == n:
+            return who
+        "*** YOUR CODE HERE ***"
+    return f(1, 1, 1)
+
+def has_seven(n):
+    if n == 0:
+        return False
+    elif n % 10 == 7:
+        return True
+    else:
+        return has_seven(n // 10)
+```
+
+> `has_seven` 官方已给，`f` 的入口调用 `return f(1, 1, 1)` 也已给出，你只补 `f` 里递归那几行。
 
 **提示（Hint）**
 
