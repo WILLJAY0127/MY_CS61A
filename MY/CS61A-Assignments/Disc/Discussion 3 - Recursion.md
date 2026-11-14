@@ -202,7 +202,46 @@ If `n` is even, then the base case will be `2`. If `n` is odd, then the base cas
 
 **答案**
 
-（做完再补）
+```python
+def skip_factorial(n):
+    if n <= 0:
+        return 1
+    else:
+        return n * skip_factorial(n - 2)
+```
+
+**验证**
+
+```python
+>>> skip_factorial(5)
+15
+>>> skip_factorial(8)
+384
+```
+
+**思路**
+
+递归部分官方已给：`n * skip_factorial(n - 2)`，每次砍 2，所以只需要决定"什么时候停、返回什么"。base case 有两种等价设计：
+
+| 设计 | 条件 | 返回值 | 递归链（n=8） |
+| -- | -- | -- | -- |
+| 链尾即停（官方答案） | `n <= 2` | `n`（链尾本身就是 1 或 2） | `8 * 6 * 4 * 2`，到 2 停 |
+| 越过链尾（本答案） | `n <= 0` | `1`（乘法单位元） | `8 * 6 * 4 * 2 * 1`，到 0 停 |
+
+关键观察：**1 是乘法单位元**，乘上它不改变结果，所以"多走一步、越界后返回 1"永远安全。本答案用的就是这个思路，比"链尾即停"多一层递归调用，但 base case 写法更统一（不用管链尾是 1 还是 2）。
+
+**关联知识点**
+
+- 单位元思想：乘法单位元是 1、加法单位元是 0。求和型递归的越界 base case 写 `return 0`，求积型写 `return 1`，不要写反
+- base case 的两种通用模式：在最后一个有效值停（返回该值）vs 越过有效值（返回单位元）——后者常让代码更短
+- 与 Q1 对照：Q1 是"输出型"递归（靠 print 顺序），Q2 是"累积型"递归（靠返回值逐层相乘）
+
+**易错点**
+
+- 条件 `n - 2 <= 0` 搭配返回 `1` → 条件在链尾（1 或 2）就命中，偶数链尾的 **2 被换成 1**，`skip_factorial(8)` 得 192 而非 384（第一版踩的坑：条件和返回值要配套，提前停就得返回链尾本身）
+- 只考虑奇数链（如 `n == 1: return 1`）→ 偶数输入会跳过 1 直接到 0、负数，条件永不命中，无限递归
+- base case 返回 `0` → 0 是乘法零元不是单位元，整个乘积归零
+- 条件写 `n == 0` → 奇数输入从 1 直接跳到 -1，永远不等于 0，无限递归
 
 ***
 
@@ -268,7 +307,62 @@ Come up with a one sentence docstring for the helper function that describes wha
 
 **答案**
 
-（做完再补）
+```python
+def is_prime(n):
+    def f(i):
+        """Check whether no number from i up to n evenly divides n."""
+        if i >= n:
+            return True
+        elif n % i == 0:
+            return False
+        else:
+            return f(i + 1)
+    return f(2)
+```
+
+> `f` 的 docstring 就是 **Documentation** 那道小问的答案：描述它**检查了什么**，而不是"它辅助 is_prime"。
+
+**验证**
+
+```python
+>>> is_prime(2)
+True
+>>> is_prime(16)
+False
+>>> is_prime(521)
+True
+```
+
+**思路**
+
+while 循环的每个部件在递归版里都有明确对应物，可以机械翻译：
+
+| while 版 | 递归版 |
+| -- | -- |
+| 初始化 `i = 2` | 最外层调用 `helper(2)`（骨架已给） |
+| 循环条件 `i < n` | 决定 base case 什么时候命中 |
+| 每轮 `i += 1` | 递归调用时参数怎么变（最后一个空） |
+| 循环体里 `if n % i == 0: return False` | 一个 base case 分支 |
+| 循环正常结束 `return True` | 另一个 base case 分支 |
+
+**分支顺序是这题唯一的陷阱**：`n % n` 恒等于 0，所以"检查是否走完"必须放在"能否整除"**前面**。while 版靠 `while i < n` 把 `i == n` 挡在循环体外，递归版没有这层外壳，只能靠顺序。
+
+**为什么 helper 定义在内部**：`f` 定义在 `is_prime` 体内，通过闭包直接看到外层的 `n`，所以只需要一个参数 `i`；若定义在全局，就得传 `(n, i)` 两个参数。这正是题目"让参数尽量少"的意图，同时 `f` 不会污染全局名字空间。
+
+**关联知识点**
+
+- **循环 → 递归的机械映射**：初始化→入口实参、循环条件→base case、循环体→分支、步进→递归实参、循环后语句→合并进 base case
+- **闭包减少参数**：内层函数能直接读外层调用帧的名字（这里读 `n`），于是参数只留"会变的那一个"
+- **边界判断优先**：能被所有数整除的边界值（`i == n`）必须先于业务判断处理
+- **辅助函数的作用域选择**：内部定义 = 私有 + 省参数；全局定义 = 可复用但污染名字空间
+
+**易错点**
+
+- 分支顺序反了（`i == n` 放 `elif`）→ 质数全被判成 `False`：`is_prime(2)` 在 `i = 2` 时就命中 `2 % 2 == 0`；`is_prime(521)` 在最后一步 `521 % 521 == 0` 命中
+- **官方 Hint 骨架顺序有误**：页面 Hint 把 `n % i == 0` 写在第一个 `if`，照抄必错；官方 Solution 是 `i == n` 在前。看到 Hint 骨架先用最小用例（这里 `2`）手跑一遍
+- 写成 `elseif`（C/JS/PHP 习惯）→ Python 只有 `elif`，直接 `SyntaxError`
+- 内层 `f(i + 1)` 前面漏写 `return` → 递归调用结果被丢弃，函数返回 `None`
+- helper 定义在全局却忘了传 `n` → `NameError`；传成 `f(n, i)` 又违背"参数尽量少"
 
 ***
 
@@ -332,7 +426,119 @@ Once your group has converged on a solution, it's time to practice your ability 
 
 **答案**
 
-（做完再补）
+```python
+def hailstone(n):
+    print(n)
+    if n % 2 == 0:
+        return even(n)
+    else:
+        return odd(n)
+
+def even(n):
+    return hailstone(n // 2) + 1
+
+def odd(n):
+    if n == 1:
+        return 1
+    else:
+        return hailstone(n * 3 + 1) + 1
+```
+
+**验证**
+
+```python
+>>> a = hailstone(10)
+10
+5
+16
+8
+4
+2
+1
+>>> a
+7
+>>> b = hailstone(1)
+1
+>>> b
+1
+```
+
+**思路**
+
+`hailstone` 只做两件事：打印当前值、按奇偶转交给 `even` / `odd`。它自己不计数，也不判断终止。
+
+`even` / `odd` 负责算下一跳（交给 `hailstone` 递归），并把后面的项数 `+ 1` 加回来。
+
+`hailstone(10)` 的展开：
+
+```text
+hailstone(10)  →  print 10, 返回 even(10)
+even(10)       →  hailstone(5) + 1
+hailstone(5)   →  print 5,  返回 odd(5)
+odd(5)         →  hailstone(16) + 1
+hailstone(16)  →  print 16, 返回 even(16)
+even(16)       →  hailstone(8) + 1
+hailstone(8)   →  print 8,  返回 even(8)
+even(8)        →  hailstone(4) + 1
+hailstone(4)   →  print 4,  返回 even(4)
+even(4)        →  hailstone(2) + 1
+hailstone(2)   →  print 2,  返回 even(2)
+even(2)        →  hailstone(1) + 1
+hailstone(1)   →  print 1,  返回 odd(1)
+odd(1)         →  1           ← base case
+```
+
+打印在**下去**的路上（10 → 1），加法在**回来**的路上（6 个 `+ 1` 依次加回，`1 + 6 = 7`）。
+
+> 这题本质就是「把 HW 1 的 `while` 改成递归」，和 Q3 同一个技能。`even` / `odd` 的拆分是填空题的骨架形式，顺带让 `even` 变成没有 `if` 的一行（偶数本来就不可能终止）。不用往"设计意图"上过度解读。
+
+**职责划分：循环版 vs 递归版**
+
+HW 1 的 while 版（官方解答）：
+
+```python
+def hailstone(n):
+    length = 1
+    while n != 1:
+        print(n)
+        if n % 2 == 0:
+            n = n // 2
+        else:
+            n = 3 * n + 1
+        length = length + 1
+    print(n)
+    return length
+```
+
+| 职责 | 循环版（HW 1） | 递归版（Disc 3） |
+| -- | -- | -- |
+| 打印 | 循环体里 `print(n)`，出循环后补一次 | `hailstone` 开头一次 `print(n)` |
+| 判断奇偶 | 循环体里的 `if n % 2 == 0` | `hailstone` 里的 `if n % 2 == 0` |
+| 算下一跳 | `n = n // 2` / `n = 3 * n + 1` | `even` / `odd` 传给 `hailstone` 的实参 |
+| 计数 | `length = length + 1` 每轮加一次 | `+ 1` 写在 `even` / `odd` 的返回值里 |
+| 终止条件 | `while n != 1` | `odd(1)` 的 `if n == 1` |
+| 谁管全部 | 一个函数全包 | 三个函数分工 |
+
+三个关键差异：
+
+1. **状态 vs 新帧**：循环版 `n = n // 2` 覆盖同一个 `n`，下一圈接着用；递归版 `hailstone(n // 2)` 开一个新帧，每个 `n` 各占一格。
+2. **计数方向相反**：循环版 `length += 1` 是"先加，再继续"；递归版 `+ 1` 是"等后面结果回来再加"。
+3. **print 的位置**：循环版必须先 print 再赋值（否则打的是下一跳）；递归版 `n` 不被覆盖，但 print 仍要放开头才保证顺序。
+
+**关联知识点**
+
+- 这题相对 Q3 唯一新增的技能：**累加器 → 返回值**。Q3 的 `while` 没有状态（直接 `return True/False`），Q4 的 `while` 用 `length` 累加，转递归时这个 `length` 就变成返回路上的 `+ 1`
+- 递归里"打印"和"返回"是两条独立的链：打印下去（先序），加法回来（后序）
+- 返回值是**项数**不是**步数**：`hailstone(10)` 返回 7 = 7 项（跳了 6 次）
+
+**易错点**
+
+- 写成 `elif:` 后面不带条件 → `SyntaxError`。`n == 1` 已拦住 base case，剩下的直接 `else:`
+- `odd` 的 base case 里又写 `print(n)` → `hailstone(1)` 先打一次、`odd(1)` 再打一次，输出两行 `1`。**打印只归 `hailstone` 管**
+- `even` 漏掉 `+ 1` → 少算一项，`hailstone(10)` 得 6
+- `odd` 递归分支漏掉 `+ 1` → 同上
+- 在 `even` / `odd` 里再写 `print` → 重复打印
+- 把返回值当"步数"→ 以为 `hailstone(1)` 该返回 0；实际 base case 那层把自己也算一项，返回 1
 
 ***
 
