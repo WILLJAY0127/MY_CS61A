@@ -438,13 +438,81 @@ def count_dollars(total):
 
 **答案**
 
-（做完再补）
+```python
+def count_dollars(total):
+    def count(value, num):
+        if value == 0:
+            return 1
+        elif value < 0 or num is None:
+            return 0
+        else:
+            return count(value - num, num) + count(value, next_smaller_dollar(num))
+    return count(total, 100)
+```
 
 **验证**
 
 ```bash
 python3 ok -q count_dollars
 ```
+
+```text
+Test summary
+    1 test cases passed! No cases failed.
+```
+
+**思路**
+
+Q4 是 HW03 的分水岭：前三题沿一条链递归，这题每次调用**同时走两个方向**——树递归。
+
+分类标准（use-it-or-lose-it）：把「用面额 ≤ `num` 的钞票凑 `value`」的所有方案按「用没用 `num`」分成互斥两类：
+
+1. **用了至少一张 `num`**：拿走一张，剩下 `value - num` 还能继续用 `num` → `count(value - num, num)`
+2. **一张都不用**：金额不变，最大可用面额降级为 `next_smaller_dollar(num)` → `count(value, next_smaller_dollar(num))`
+
+`count_dollars(10)` 的树（画到面额 10 为止）：
+
+```text
+count(10,10)
+ ├─ 用一张10: count(0,10) = 1        → {10}
+ └─ 不用10:   count(10,5)
+     ├─ 用一张5:  count(5,5)
+     │   ├─ 用5:  count(0,5) = 1    → {5,5}
+     │   └─ 不用: count(5,1) = 1    → {5,1,1,1,1,1}
+     └─ 不用5:    count(10,1) = 1   → {1×10}
+合计 4 ✅（与 doctest 一致）
+```
+
+**不重不漏的原因**：每个方案按「用到的**最大面额**」唯一归属——`{1×5, 1×10}` 只出现在「10 用了、才轮到 5」的路径上；`5+1` 和 `1+5` 天然是同一条路径，不会数两次。
+
+三个出口各司其职：
+
+| 条件 | 含义 | 返回 |
+|---|---|---|
+| `value == 0` | 刚好凑满，找到一种 | `1` |
+| `value < 0` | 这条路凑超了 | `0` |
+| `num is None` | 连 $1 都放弃了，无面额可用 | `0` |
+
+`next_smaller_dollar(1)` 返回 `None` 不是疏漏，是官方故意留的**终止哨兵**；判断写 `num is None` 而不是 `num == 1`——后者意味着永不放弃 $1，`count(value, 1)` 将没有出口。
+
+合并方式与 Q1 一脉相承：计数靠**返回值相加**，base case 返回加法的单位元（凑满 = 1，走不通 = 0）；区别只是从「一条链加到底」变成「一棵树把所有叶子加起来」。
+
+**关联知识点**
+
+- 教材 Section 1.7.5 Example: Partitions（`SOURCE/composing-programs-offline/www.composingprograms.com/pages/17-recursive-functions.html`）的 `count_partitions`：同一副「用/不用」骨架，只是「不使用 m」换成「降级到下一面额」
+- 计数型树递归：合并用加法、base 返回单位元——Q1「数 8」的树形版
+- 辅助函数携带跨层状态：`total` 不变收进闭包，会变的 `(value, num)` 作参数——与 Q3 的 `odd`/`even(k)` 同一手法
+- 哨兵值模式：`None` 表示「枚举空间耗尽」，配合 `is None` 判断
+- 为 Q5 铺路：把「按最大面额分层」镜像成「按最小面额分层」，骨架不变
+
+**易错点**
+
+- 基例写成 `value == num → 1`：漏方案——`count(5, 5)` 有「一张 $5」和「五张 $1」两种；基例看**金额**不看面额
+- 基例顺序颠倒：先判 `num is None` 会把「刚好凑满且面额也用完」误判成 0——`value == 0` 必须放最前
+- 终止写成 `value > num → 0`：金额和面额量纲不同，`count(10, 5)` 完全合法（两张 $5）
+- use 分支写成 `count(value - num, next_smaller_dollar(num))`：变成「每种面额最多用一张」，方案数骤减
+- 把 `construct_check` 当面额函数传进递归（本次真实踩坑）：它是查语法禁令的模块，这里要调的是 `next_smaller_dollar`
+- 用循环枚举所有组合 → `check(..., ['While', 'For'])` 直接判 `False`
 
 ---
 
@@ -680,12 +748,6 @@ def make_anonymous_factorial():
 ```bash
 python3 ok -q make_anonymous_factorial
 ```
-
----
-
-## 本次踩的坑
-
-- （做完再补；通用坑再升级进 `MY/Knowledge/Common_Pitfalls.md`）
 
 ---
 
