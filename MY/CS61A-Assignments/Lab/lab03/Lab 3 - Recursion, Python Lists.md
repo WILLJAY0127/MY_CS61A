@@ -35,16 +35,16 @@ due: 2024-09-25
 
 **题目地图**
 
-| 题号 | 题名 | 类型 | 必做 |
-|---|---|---|---|
-| Q1 | WWPD: Lists & Ranges | WWPD | 是 |
-| Q2 | Print If | 编程（for + 高阶） | 是 |
-| Q3 | Close | 编程（range 索引） | 是 |
-| Q4 | WWPD: List Comprehensions | WWPD | 是 |
-| Q5 | Close List | 编程（列表推导式） | 是 |
-| Q6 | Squares Only | 编程（列表推导式 + `math`） | 是 |
-| Q7 | Double Eights | 编程（递归） | 是 |
-| Q8 | Making Onions | 编程（递归 + 高阶） | 是 |
+| 题号 | 题名                        | 类型                 | 必做 |
+| -- | ------------------------- | ------------------ | -- |
+| Q1 | WWPD: Lists & Ranges      | WWPD               | 是  |
+| Q2 | Print If                  | 编程（for + 高阶）       | 是  |
+| Q3 | Close                     | 编程（range 索引）       | 是  |
+| Q4 | WWPD: List Comprehensions | WWPD               | 是  |
+| Q5 | Close List                | 编程（列表推导式）          | 是  |
+| Q6 | Squares Only              | 编程（列表推导式 + `math`） | 是  |
+| Q7 | Double Eights             | 编程（递归）             | 是  |
+| Q8 | Making Onions             | 编程（递归 + 高阶）        | 是  |
 
 **对应讲义**：Lec08 · Recursion，Lec10 · Sequences
 
@@ -330,7 +330,12 @@ def print_if(s, f):
 
 **答案**
 
-（做完再补）
+```python
+def print_if(s, f):
+    for x in s:
+        if f(x):
+            print(x)
+```
 
 **验证**
 
@@ -338,7 +343,30 @@ def print_if(s, f):
 python3 ok -q print_if
 ```
 
-（待跑）
+```text
+Test summary
+    1 test cases passed! No cases failed.
+```
+
+**思路**
+
+`for x in s` 拿到的已经是**元素本身**，不是索引。所以这一题不需要 `range(len(s))`，直接对 `x` 调用 `f` 就行：
+
+1. `f(x)` 为真 → 打印 `x`
+2. `f(x)` 为假 → 什么都不做，继续下一个
+
+关键是**不写 `return`**。函数的职责只有「打印」，打印完就该让循环继续下一个元素。一旦在循环里 `return`，第一个满足条件的元素就会终止整个函数。
+
+**关联知识点**
+
+- `for x in s` 遍历元素 vs `for i in range(len(s))` 遍历索引——本题用前者，Q3 用后者
+- 高阶函数：`f` 是参数而不是写死的判断，同一个 `print_if` 能配任意筛选条件（对接 Lec04 / Lab 2）
+
+**易错点**
+
+- 循环体里写 `return` 或 `return x` → doctest 第三段期望 `print(result)` 是 `None`，会失败
+- 写成 `for i in range(len(s)): if f(i)` → 判断的是下标而不是元素
+- 漏掉 `if` 直接 `print(x)` → 全部打印，失去了筛选的意义
 
 #### Q3: Close
 
@@ -374,7 +402,14 @@ def close(s, k):
 
 **答案**
 
-（做完再补）
+```python
+def close(s, k):
+    count = 0
+    for i in range(len(s)):  # Use a range to loop over indices
+        if abs(s[i] - i) <= k:
+            count += 1
+    return count
+```
 
 **验证**
 
@@ -382,7 +417,45 @@ def close(s, k):
 python3 ok -q close
 ```
 
-（待跑）
+```text
+Test summary
+    1 test cases passed! No cases failed.
+```
+
+**思路**
+
+这题必须走**索引**，因为要比较「元素值」和「它的下标」两个东西，而元素本身不知道自己的位置。所以循环用 `range(len(s))` 而不是 `for x in s`：
+
+1. `s[i]` 取元素值
+2. `i` 是它的下标
+3. `abs(s[i] - i)` 是「值与下标相差多少」，去掉正负号
+4. `<= k` 就计入一次
+
+以 `t = [6, 2, 4, 3, 5]`、`k = 1` 为例：
+
+| i | s[i] | s[i] - i | abs | ≤ 1 ? |
+|---|---|---|---|---|
+| 0 | 6 | 6 | 6 | ✗ |
+| 1 | 2 | 1 | 1 | ✓ |
+| 2 | 4 | 2 | 2 | ✗ |
+| 3 | 3 | 0 | 0 | ✓ |
+| 4 | 5 | 1 | 1 | ✓ |
+
+3 个，与 doctest 的 `3` 一致。
+
+**关联知识点**
+
+- `for x in s`（拿元素）vs `for i in range(len(s))`（拿下标）——需要位置信息时必须用后者
+- `abs()` 是一个内建函数，返回绝对值；`abs(x)` 只接受一个参数
+- 计数型循环的骨架：初始化 → 遍历 → 条件判断 → 累加 → 返回
+- 与 Q5 是同一判定、不同产出：Q3 数个数，Q5 收集成列表
+
+**易错点**
+
+- 不写 `abs`，只写 `s[i] - i <= k` → 负数会全部被误判为「在上界内」，`close(t, 1)` 会多算
+- 用 `for x in s` 后试图用 `s.index(x)` 找下标 → 重复元素会返回第一个匹配位置，`t` 里有两个索引不同的相同值时会算错
+- 在循环里 `return count` → 第一次循环就返回，只算了第一个元素
+- `count` 忘记 `+= 1` 而写成 `count += s[i]` → 数字变求和
 
 ### List Comprehensions
 
@@ -413,9 +486,31 @@ ______
 ______
 ```
 
-**答案**
+**答案**（unlock 全部通过）
 
-（做完再补）
+```python
+>>> [2 * x for x in range(4)]
+[0, 2, 4, 6]
+>>> [y for y in [6, 1, 6, 1] if y > 2]
+[6, 6]
+>>> [[1] + s for s in [[4], [5, 6]]]
+[[1, 4], [1, 5, 6]]
+>>> [z + 1 for z in range(10) if z % 3 == 0]
+[1, 4, 7, 10]
+```
+
+**说明**
+
+- 4 个空，首遍对 2 个、错 2 个
+- 第 3 题：`s` 依次绑定 `[4]`、`[5, 6]`，`[1] + s` 是**列表拼接**，所以是 `[1, 4]` 和 `[1, 5, 6]`，不是数值加法
+- 第 4 题：`range(10)` 里满足 `z % 3 == 0` 的是 `0, 3, 6, 9`，各加 1 得 `1, 4, 7, 10`
+
+**易错点**
+
+- 第 3 题多写一个 `]`：两个元素各闭合一次、外层再闭合一次，末尾只有两个 `]`。括号配对建议对着「外层 + 每个元素」数
+- 第 4 题漏掉 `z = 0` → 答 `[4, 7, 10]`，少了 `1`。**`0 % 3 == 0` 成立**，0 是 `range(10)` 的第一个元素，不能默认从 3 开始
+- 把 `[1] + s` 当成数值加法 → 会以为第 3 题输出 `[5, 6]` 之类的数字
+- 带 `if` 的推导式，`if` 过滤的是**元素**（`y`、`z`），`for` 前面的表达式是在**过滤之后**才求值的，顺序别弄反
 
 #### Q5: Close List
 
@@ -444,7 +539,10 @@ def close_list(s, k):
 
 **答案**
 
-（做完再补）
+```python
+def close_list(s, k):
+    return [s[i] for i in range(len(s)) if abs(s[i] - i) <= k]
+```
 
 **验证**
 
@@ -452,7 +550,38 @@ def close_list(s, k):
 python3 ok -q close_list
 ```
 
-（待跑）
+```text
+Test summary
+    1 test cases passed! No cases failed.
+```
+
+**思路**
+
+这就是 Q3 的列表推导式版本。把 Q3 的 for 循环逐块对到推导式上：
+
+| Q3 的 for 循环 | Q5 的推导式 |
+|---|---|
+| `for i in range(len(s))` | `for i in range(len(s))` |
+| `if abs(s[i] - i) <= k:` | `if abs(s[i] - i) <= k` |
+| `count += 1` | 换成把 `s[i]` 放进新列表 |
+| `return count` | `[...]` 本身就是返回值，不用 return 变量 |
+
+关键差异：**Q3 累加的是“次数”，Q5 收集的是“元素本身”**。所以 `for` 前面必须是 `s[i]`，不能是 `i`（否则会得到下标列表）也不能是 `1`（否则会得到一堆 1）。
+
+以 `t = [6, 2, 4, 3, 5]`、`k = 2` 为例，通过筛选的是 `i = 1, 2, 3, 4`，对应的 `s[i]` 依次是 `2, 4, 3, 5`，所以结果是 `[2, 4, 3, 5]`。注意这些值原样保留，没有排序，与 `[2, 3, 4, 5]` 不同。
+
+**关联知识点**
+
+- 列表推导式三要素：`[表达式 for 变量 in 序列 if 条件]`
+- 同一套逻辑的两种产出：累计计数（Q3）vs 收集列表（Q5）。想清楚“我要的是数量还是元素”
+- `for` 前面的表达式作用在**过滤之后**的元素上，顺序是“先筛、再变换”
+
+**易错点**
+
+- `for` 前面写 `i` 而不是 `s[i]` → 得到 `[1, 2, 3, 4]` 这种下标列表
+- 忘了 `range(len(s))` 而写 `for i in s` → `i` 变成元素值，`s[i]` 会越界或取错
+- 以为结果会排序 → doctest 里 `[2, 4, 3, 5]` 就是原顺序，不是 `[2, 3, 4, 5]`
+- 在推导式里又想写 `count += 1` → 推导式不能执行语句，只能求值
 
 #### Q6: Squares Only
 
@@ -485,7 +614,12 @@ def squares(s):
 
 **答案**
 
-（做完再补）
+```python
+from math import sqrt
+
+def squares(s):
+    return [round(sqrt(n)) for n in s if sqrt(n) == round(sqrt(n))]
+```
 
 **验证**
 
@@ -493,7 +627,57 @@ def squares(s):
 python3 ok -q squares
 ```
 
-（待跑）
+```text
+Test summary
+    1 test cases passed! No cases failed.
+```
+
+**思路**
+
+和 Q5 同一个骨架，只是换成「判断完全平方数 + 取平方根」。这题 `round()` 出现了两次，干的是两件不同的事：
+
+| 位置 | 作用 | 说明 |
+|---|---|---|
+| `if sqrt(n) == round(sqrt(n))` | **判断**是否完全平方 | 完全平方数的 `sqrt` 是整数，取整后不变 |
+| `for` 前面的 `round(sqrt(n))` | **转类型** | `sqrt` 返回浮点，`round` 收成整数 |
+
+为什么第二个 `round` 不能省：
+
+```python
+>>> sqrt(49)
+7.0
+>>> round(sqrt(49))
+7
+```
+
+doctest 期望 `[7, 3, 1, 10]`，如果只写 `sqrt(n)` 会得到 `[7.0, 3.0, 1.0, 10.0]`，浮点与整数不相等，测试失败。
+
+以 `seq = [8, 49, 8, 9, 2, 1, 100, 102]` 为例：
+
+| n | sqrt(n) | 是整数？ | 输出 |
+|---|---|---|---|
+| 8 | ≈2.83 | ✗ | 丢弃 |
+| 49 | 7.0 | ✓ | 7 |
+| 8 | ≈2.83 | ✗ | 丢弃 |
+| 9 | 3.0 | ✓ | 3 |
+| 2 | ≈1.41 | ✗ | 丢弃 |
+| 1 | 1.0 | ✓ | 1 |
+| 100 | 10.0 | ✓ | 10 |
+| 102 | ≈10.10 | ✗ | 丢弃 |
+
+**关联知识点**
+
+- `from math import sqrt`：`sqrt` 来自标准库 `math`，不是内建函数
+- 浮点与整数的区别：`7.0 == 7` 为 `True`，但 `repr` 显示不同，doctest 按显示比对
+- `round(x)` 返回整数（对浮点输入），既是「四舍五入」也是「浮点转整数」的手段
+- 列表推导式里，`if` 分支和表达式分支**可以调用同一个函数两次**，这题 `sqrt` 实际被算了两次
+
+**易错点**
+
+- 只写 `sqrt(n)` 不写 `round` → 输出 `[7.0, 3.0, 1.0, 10.0]`，与 doctest 不匹配
+- 判断写成 `sqrt(n) == int(sqrt(n))` → 能跑，但 `int` 对负数/浮点误差的处理不如 `round`；题目明确建议用 `round`
+- 忘了 `from math import sqrt` → `NameError`
+- 把 `round` 只放在 `if` 里、表达式里忘了 → 同样输出浮点，测试失败
 
 ### Recursion
 
@@ -503,7 +687,7 @@ python3 ok -q squares
 
 Write a **recursive** function that takes in a positive integer `n` and determines if its digits contain two adjacent `8`s (that is, two `8`s right next to each other).u
 
-**Hint:** Start by coming up with a recursive plan: the digits of a number have double eights if either ** (think of something that is straightforward to check) or double eights appear in the rest of the digits.
+**Hint:** Start by coming up with a recursive plan: the digits of a number have double eights if either \*\* (think of something that is straightforward to check) or double eights appear in the rest of the digits.
 
 **Important:** Use recursion; the tests will fail if you use any loops (for, while).
 
@@ -540,7 +724,17 @@ def double_eights(n):
 
 **答案**
 
-（做完再补）
+```python
+def double_eights(n):
+    if n < 10:
+        return False
+    right = n % 10
+    next_right = n // 10 % 10
+    if right == next_right == 8:
+        return True
+    else:
+        return double_eights(n // 10)
+```
 
 **验证**
 
@@ -548,7 +742,60 @@ def double_eights(n):
 python3 ok -q double_eights
 ```
 
-（待跑）
+```text
+Test summary
+    1 test cases passed! No cases failed.
+```
+
+**思路**
+
+每层只看**末尾两位**，把其余部分交给 `n // 10`：
+
+1. `n % 10` —— 末位
+2. `n // 10 % 10` —— 倒数第二位
+3. 两个都是 8 → 本层发现双 8，返回 `True`
+4. 否则 → 相信 `double_eights(n // 10)` 能查完剩下的位
+
+以 `588138` 为例：
+
+| 调用 | 末两位 | 结果 |
+|---|---|---|
+| `588138` | 8, 3 | 不是，继续 |
+| `58813` | 3, 1 | 不是，继续 |
+| `5881` | 1, 8 | 不是，继续 |
+| `5881 → 588` | 8, 8 | **双 8，返回 True** |
+
+**为什么 base case 是 `n < 10` 而不是 `n == 0`**
+
+这题要判断的是“**有没有一对相邻的数字**”。一位数连一对都没有，所以边界应该停在「不足两位」，即 `n < 10`。
+
+对比 HW3 的 Q1 `num_eights`：那里判断的是“**每一位是不是 8**”，每一位都算数，所以边界要退到「一位都没有了」，即 `n == 0`。
+
+**同一个 `n == 0`，在不同题里含义不同**，关键看它代表的是：
+
+| 边界含义 | 条件 | 对应题目 |
+|---|---|---|
+| 数据用完了（不再有元素可处理） | `n == 0` | HW3 Q1 `num_eights` |
+| 没有可比较的对象了（凑不出一对） | `n < 10` | Lab3 Q7 `double_eights` |
+
+写递归前先问一句：「这题的最小有效单位是什么？」是一**位**还是**一对**？答案决定边界停在哪里。
+
+顺带：这题写 `n == 0` 也不会错，因为它多走一层时 `next_right` 会变成 `0`，而 `(某位, 0)` 永远不等于 `(8, 8)`。但那是一次白跑的调用，属于“碰巧安全”。
+
+**关联知识点**
+
+- 数字逐位拆解：`n % 10` 取末位、`n // 10` 丢掉末位
+- 链式比较：`right == next_right == 8` 等价于 `right == next_right and next_right == 8`
+- `construct_check` 禁 `While`、`For`，但**没有禁 `Assign`**，所以 `right = ...` 这类赋值可以用（对比 HW3 Q1 连赋值都禁）
+- 本节 Q7、Q8 与 Q1–Q6 无关：这份 Lab 前半是列表（遍历 + 推导式），后半是递归，只是被官方放在同一份作业里
+
+**易错点**
+
+- **`else` 分支漏写 `return`**：写成 `double_eights(n // 10)` 只是调用、不返回，函数会返回 `None`，所有“不含双 8”的用例全部失败。这是本题最容易踩的坑
+- base case 用 `n == 0` 而不加思考 → 能跑但多一层无用调用；真正该问的是“最小单位是一位还是一对”
+- 只检查 `n % 10 == 8` → 只能发现单个 8，发现不了相邻
+- 忘了 `n // 10 % 10` 中 `% 10` 的优先级 —— Python 里 `//` 和 `%` 同级、从左到右，所以 `n // 10 % 10` 就是 `(n // 10) % 10`，正确；但写成 `n // (10 % 10)` 会除零
+- 用 `str(n)` 转字符串判断 → 虽然能过测试，但违背题目“递归拆数字”的意图
 
 #### Q8: Making Onions
 
@@ -633,6 +880,6 @@ python3 ok --score
 
 ## 相关概念
 
-- [[Discussion 3 - Recursion]] — 同一套递归套路，Q7 与 Disc 3 Q1 同源（都是逐位拆解）
-- [[Homework 3 - Recursion, Tree Recursion]] — Q8 的二叉搜索与 HW 3 Q4 的树递归结构一致
-- [[Lab 2 - Higher-Order Functions]] — Q2、Q8 都在用高阶函数
+- \[\[Discussion 3 - Recursion]] — 同一套递归套路，Q7 与 Disc 3 Q1 同源（都是逐位拆解）
+- \[\[Homework 3 - Recursion, Tree Recursion]] — Q8 的二叉搜索与 HW 3 Q4 的树递归结构一致
+- \[\[Lab 2 - Higher-Order Functions]] — Q2、Q8 都在用高阶函数
