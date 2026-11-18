@@ -128,6 +128,15 @@ def count_dollars(total):
     True
     """
     "*** YOUR CODE HERE ***"
+    def count(value, num):
+        if value == 0:
+            return 1
+        elif value < 0 or num is None:
+            return 0
+        else:
+            return count(value - num, num) + count(value,next_smaller_dollar(num))
+    return count(total,100)
+
 
 
 def next_larger_dollar(bill):
