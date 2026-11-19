@@ -238,6 +238,17 @@ status: <进行中 / complete>
 - "先跑过再说优化,别跳步骤"
 - `SOURCE/CS61A-Website-Archive/` 里的官方参考答案和 `SOURCE/CS61A-Assignments_SOURCE/` 的源码,只在 Jace 自己卡死、明确要求对答案时才给出,平时不主动引用
 
+**建 HW/Lab/Disc 笔记的固定 6 步（不得跳步）**:
+
+1. `Read MY/Knowledge/Assignment_Note_Template.md` —— 必做，不许凭记忆复述规则
+2. `Grep` 抓官方页标题层级：对 `SOURCE/CS61A-Website-Archive/<类型>/<编号>/index.html` 搜 `<h[1-4]`，得到与页面同序的标题清单（正文里的多个 `<h1>` 一律降为 `##`）
+3. `Read` 官方 `index.html` 正文区间 —— 逐题取原题英文原文、Hint、限制条件
+4. 逐题抄 `activateEditor('...')` 里的 Starter 原文并**解码**（`\n` `&quot;` `&gt;` `&lt;` `&#x2d;`），含 docstring、doctest、`___`
+5. 写文件 —— 未做的题只留 `（做完再补）`，不预填答案
+6. **回读校验**：H1 唯一；H2/H3 与页面同名同序；每题有 `**Starter**` 和 `> **中文**` 两块；行政区块（Zoom / Pensieve / 出勤表 / Submit）已省略
+
+第 6 步不可省——写完后回读一遍，比任何前置规则都可靠。
+
 ---
 
 ## Project 独立闭环(Hog / Cats / Ants / Scheme)
