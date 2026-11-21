@@ -51,6 +51,71 @@ due: 2024-10-08
 
 **对应讲义**：Lec09 · Tree Recursion，Lec10 · Sequences
 
+### 依赖关系（必须按顺序做）
+
+| 题 | 依赖 | 说明 |
+|---|---|---|
+| Problem 1 `pick` | 无 | 独立 |
+| Problem 2 `about` | 无 | 返回的函数要喂给 `pick` 的测试 |
+| Problem 3 `accuracy` | 无 | 独立 |
+| Problem 4 `wpm` | 无 | 独立 |
+| Problem 5 `autocorrect` | 无 | diff 函数是参数，先按「黑盒」写 |
+| Problem 6 `furry_fixes` | 无 | 写完回 Problem 5 验证 |
+| Problem 7 `minimum_mewtations` | 思路复用 Problem 6 | 多出「增/删」两条递归 |
+| Problem 8 `report_progress` | 无 | 独立 |
+| Problem 9 `time_per_word` | 无 | 输出结构喂给 Problem 10 |
+| Problem 10 `fastest_words` | **强依赖 Problem 9** | 输入就是 Problem 9 的返回字典 |
+| Problem EC `memo_diff` | 依赖 Problem 6/7 | `memo` 作为范例在同一个文件里 |
+
+### 关键数据结构
+
+- `words_and_times = {'words': [...], 'times': [[...], ...]}`：`times[i][j]` = 玩家 `i` 打第 `j` 个词花的时间
+- `timestamps_per_player`：**累计**时间戳，每人长度 = 词数 + 1（第一个是开始时间）→ 换成 `times` 后每人少一项
+- diff 函数契约：`diff_function(typed, source, limit) -> number`；返回值 **> limit 时具体是多少不重要**，只表示「差太远」
+- `upload(dict)`：入参固定为 `{'id': ..., 'progress': ...}` 两项字典
+
+### 函数名词典（字面含义 → 实际功能）
+
+| 函数 | 字面含义 | 实际功能 |
+|---|---|---|
+| `pick` | 挑 | 取第 `k` 个满足条件的段落 |
+| `about` | 关于 | 返回「段落是否含关键词」的判定函数（闭包） |
+| `accuracy` | 准确率 | 同位置完全相同的词数 ÷ `typed` 词数 |
+| `wpm` | 每分钟词数 | `(字符数 / 5) / (秒数 / 60)` |
+| `autocorrect` | 自动纠正 | 词表里找最像的词，超 `limit` 就原样返回 |
+| `furry_fixes` | 毛茸茸修复（project 梗） | 逐位替换计数 + 长度差 |
+| `minimum_mewtations` | 最小喵化（mutation 的猫化拼写） | 增/删/改三种操作的编辑距离 |
+| `report_progress` | 报告进度 | 上传进度并返回「第一个错词之前」的正确率 |
+| `time_per_word` | 每词用时 | 把累计时间戳换成相邻差 |
+| `fastest_words` | 最快词 | 每个词归给耗时最短的玩家 |
+| `memo_diff` | 记忆化 diff | 按 `(typed, source)` 缓存 `(value, limit)` |
+
+### 硬性约束清单（官方 Important 汇总，写之前先扫一遍）
+
+- **Problem 2**：`subject` 必须全小写（官方 `assert`）；比较忽略大小写与标点，且只认整词（"dogs" 不匹配 "dog"）
+- **Problem 3**：分母是 `typed` 的词数；`typed` 比 `source` 多出来的词一律算错
+- **Problem 5**：差值并列时取词表里**最靠前**的那个
+- **Problem 6**：禁用 `while` / `for` / 列表推导式，只能递归
+- **Problem 7**：**禁止辅助函数**；测试前删掉 `assert False, 'Remove this line'`；超过 `limit` 立刻停止递归（有按调用次数计的测试）
+- **Problem 10**：不能修改传入的 `times` 列表；玩家数不固定，不能写死两人
+- **Problem EC**：cache 里存的值必须用**元组**（字典键必须不可变）
+
+### 本地怎么跑
+
+```bash
+python3 ok -q 01          # 单题测试
+python3 ok --score        # 看总分
+python3 cats.py -t cats   # 命令行测打字速度
+python3 cats_gui.py       # 网页版界面
+python3 score.py          # Final Diff 成功率（选做）
+```
+
+### 为什么 Cats 是第二个项目
+
+- Hog 练的是「控制流 + 高阶函数 + 闭包」；Cats 把同样的工具用在**字符串和列表**上，并第一次引入「递归 + limit 剪枝」
+- 三个 Phase 对应三种数据结构：Phase 1 字符串/列表 → Phase 2 递归 → Phase 3 字典
+- 题目之间有真实依赖链（Problem 9 → 10），和 Hog 一样「跳过就报错」
+
 ---
 
 ## Introduction
