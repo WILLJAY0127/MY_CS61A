@@ -2,7 +2,7 @@
 type: disc
 id: "04"
 title: Tree Recursion
-status: in_progress
+status: complete
 source: SOURCE/CS61A-Website-Archive/disc/disc04/index.html
 solution: SOURCE/CS61A-Website-Archive/disc/sol-disc04/index.html
 code: none
@@ -28,16 +28,17 @@ due: TBD
 - 树递归的定义：一次调用产生多个递归调用
 - 二维状态与两个方向的分支（Q1）
 - 「包含首元素 / 跳过首元素」的二元划分（Q2）
-- 列表切片 `s[1:]`、`s[2:]` 与列表拼接 `[k] + s`
+- <br />
+- 列表拼接 `[k] + s`
 - 从「返回数字 / 布尔」升级到「返回列表的列表」（Q3）
 
 **题目地图**
 
-| 题号 | 题名 | 类型 | 核心 |
-| -- | -- | -- | -- |
-| Q1 | Insect Combinatorics | 写代码（树递归） | 二维网格，两个方向分叉 |
-| Q2 | Max Product | 写代码（列表 + 树递归） | 用/不用首元素，`max` 聚合 |
-| Q3 | Sum Fun | 写代码（列表 + 树递归） | 返回所有可行列表 |
+| 题号 | 题名                   | 类型            | 核心               |
+| -- | -------------------- | ------------- | ---------------- |
+| Q1 | Insect Combinatorics | 写代码（树递归）      | 二维网格，两个方向分叉      |
+| Q2 | Max Product          | 写代码（列表 + 树递归） | 用/不用首元素，`max` 聚合 |
+| Q3 | Sum Fun              | 写代码（列表 + 树递归） | 返回所有可行列表         |
 
 **对应讲义**：Lec09 · Tree Recursion，教材 Section 1.7
 
@@ -53,7 +54,7 @@ In this discussion, don't use a Python interpreter to run code until you are con
 
 > **中文**：本节不要急着用解释器跑代码。靠推理代码会做什么来验证，不确定就组内讨论。
 
-**[New]** Recursion takes practice. Please don't get discouraged if you're struggling to write recursive functions. Instead, every time you do solve one (even with help or in a group), make note of what you had to realize to make progress. Students improve through practice and reflection.
+**\[New]** Recursion takes practice. Please don't get discouraged if you're struggling to write recursive functions. Instead, every time you do solve one (even with help or in a group), make note of what you had to realize to make progress. Students improve through practice and reflection.
 
 > **中文**：递归靠练。每做出一道（哪怕是别人帮忙），都记下「自己当时必须想通什么才能推进」。
 
@@ -107,15 +108,42 @@ What happens if the insect hits the upper or rightmost edge of the grid?
 
 **答案**
 
-（做完再补）
-
-**验证**
-
-```bash
-python3 ok -q paths
+```python
+def paths(m, n):
+    def path(a, b):
+        if (a == m) and (b == n):
+            return 1
+        elif a == m:
+            return path(a, b + 1)
+        elif b == n:
+            return path(a + 1, b)
+        else:
+            return path(a, b + 1) + path(a + 1, b)
+    return path(1, 1)
 ```
 
-（待跑）
+**思路**
+
+- 先用文字写递归情况：昆虫站在 `(a, b)`，还没到终点时只有两个动作——往上走 `(a+1, b)` 或往右走 `(a, b+1)`，两者互不重叠，所以「从 `(a, b)` 出发的路径总数」= 两个方向各自的路径数**相加**
+- 这就是 Hint 要问的东西：走到上边界 `a == m` 后往上会出格，只剩往右一种走法；走到右边界 `b == n` 后只剩往上一种。**一旦只剩一条路，分支数从 2 降到 1**，所以写成直接 `return` 一个递归调用，而不是两个相加
+- 终点判定 `(a == m) and (b == n)` 必须放在最前面：两个边界可能同时成立，若先判单边分支，终点会被当成「只剩一个方向」继续往下走，走出去就死循环
+- 用嵌套 helper `path(a, b)` 表示「当前格子」，外层 `m`、`n` 是闭包里固定不变的目标，不必作为参数层层传递；起点是 `(1, 1)`，因为题目坐标从 1 开始，不是 0
+- 每层必有一维 +1，且边界分支把另一维锁死，所以递归一定在有限步内撞到 `(m, n)`，不会无限展开
+
+**关联知识点**
+
+- 递归三段式（[[Discussion 3 - Recursion]]）：base case / 递归调用 / 组合返回值；这里组合符是 `+`（计数），与 Lab 3 Q8 的 `or`（存在性）、Q2 的 `max`（最优）同一骨架
+- 教材 Section 1.7 Tree Recursion：本函数一次调用最多产生 **两个** 递归调用，是树递归的最小形态
+- 计数型树递归：与 [[Homework 3 - Recursion, Tree Recursion]] Q4 `count_dollars` 同构——「每个分支代表一种选择」，叶子节点累计为答案
+- 闭包：`path` 里直接读外层 `m`、`n`，属于 Lec 04 的高阶函数/闭包概念在递归里的复用
+
+**易错点**
+
+- `a == m & b == n`：`&` 是位运算符，优先级**高于** `==`，Python 实际解析成链式比较 `a == (m & b) == n`，语义完全变了。修法：写 `and`（优先级低于比较，可省括号），或给两个比较各加括号
+- 起点写成 `(0, 0)`：坐标是 1-based，从 0 起算会多出一整行和一整列，`paths(2, 2)` 会返回 6 而不是 2
+- 把边界分支也写成两条相加：往网格外走会永远撞不到 `(m, n)`，无限递归
+- 递归调用忘了 `return`（单独一行 `path(a, b + 1)`）：返回值被丢弃，函数返回 `None`，外层相加时报 `TypeError`
+- 用 `return paths(...)` 递归自己而不是 `path(...)`：每次调用都重置起点，且重新定义 helper，永远走不到终点
 
 ### Q2: Max Product
 
@@ -149,15 +177,45 @@ First try multiplying the first element by the `max_product` of everything after
 
 **答案**
 
-（做完再补）
+```python
+def max_product(s):
+    """Return the maximum product of non-consecutive elements of s.
 
-**验证**
-
-```bash
-python3 ok -q max_product
+    >>> max_product([10, 3, 1, 9, 2])   # 10 * 9
+    90
+    >>> max_product([5, 10, 5, 10, 5])  # 5 * 5 * 5
+    125
+    >>> max_product([])                 # The product of no numbers is 1
+    1
+    """
+    if s == []:
+        return 1
+    return max(s[0] * max_product(s[2:]), max_product(s[1:]))
 ```
 
-（待跑）
+**思路**
+
+- 划分维度：**是否包含首元素 `s[0]`**。它只有两个取值（选 / 不选），所以是两支——分支数由维度决定，不是背出来的
+- 支 1「选 `s[0]`」：`s[1]` 与它相邻，被迫不能选，剩下的 `s[2:]` 自由选 → `s[0] * max_product(s[2:])`
+- 支 2「不选 `s[0]`」：`s[1]` 解禁，剩下 `s[1:]` 自由选 → `max_product(s[1:])`
+- 两支的子问题起点不同（`s[2:]` vs `s[1:]`），这是「选首元素要连带牺牲第二个」的直接体现
+- 聚合符用 `max`：题目要的是「最优」而不是计数或求和；三题对照见下方关联知识点
+- base case 是空列表返回 `1`：`[]` 表示「一个都不选」，乘法单位元是 1（加法单位元才是 0）
+
+**关联知识点**
+
+- 递归三段式的组合符可换，骨架不变：`+` 计数（[[Homework 3 - Recursion, Tree Recursion]] Q4 `count_dollars`）、`or` 存在性（[[Lab 3 - Recursion, Python Lists]] Q8 `make_onion`）、`max` 最优（本题）
+- 与 `count_dollars` 同构：那边的维度是「用不用一张当前面额」→ 2 支，这边是「用不用首元素」→ 2 支；参数递减方式不同，分支结构相同
+- `s[2:]` / `s[1:]` 来自 Lec 10 · Sequences 的切片语法，Lab 3 已练过
+- 教材 Section 1.7：一次调用产生两个递归调用，属于最小形态的树递归
+
+**易错点**
+
+- 漏 base case：`s[0]` 在空列表上直接 `IndexError`，而 `max_product([])` 恰恰是官方 doctest 的第三个用例
+- base case 返回 `0` 而不是 `1`：空乘法的结果必须是乘法的单位元 1，返回 0 会让所有答案变成 0
+- 支 1 写成 `max_product(s[1:])`：忘了 `s[1]` 与 `s[0]` 相邻不能选，会选出相邻元素；应是 `s[2:]`
+- 递归调用名拼错（`max_prouct`）：运行时 `NameError`
+- 用 `+` 或 `sum` 聚合两支：那是「计数/求和」的写法，本题要比较大小，必须 `max`
 
 ### Q3: Sum Fun
 
@@ -239,15 +297,58 @@ Here is where you ensure that "no two adjacent numbers are the same." Since `k` 
 
 **答案**
 
-（做完再补）
+```python
+def sums(n, m):
+    """Return lists that sum to n containing positive numbers up to m that
+    have no adjacent repeats.
 
-**验证**
-
-```bash
-python3 ok -q sums
+    >>> sums(5, 1)
+    []
+    >>> sums(5, 2)
+    [[2, 1, 2]]
+    >>> sums(5, 3)
+    [[1, 3, 1], [2, 1, 2], [2, 3], [3, 2]]
+    >>> sums(5, 5)
+    [[1, 3, 1], [1, 4], [2, 1, 2], [2, 3], [3, 2], [4, 1], [5]]
+    >>> sums(6, 3)
+    [[1, 2, 1, 2], [1, 2, 3], [1, 3, 2], [2, 1, 2, 1], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]
+    """
+    if n < 0:
+        return []
+    if n == 0:
+        sums_to_zero = []     # The only way to sum to zero using positives
+        return [sums_to_zero] # Return a list of all the ways to sum to zero
+    result = []
+    for k in range(1, m + 1):
+        result = result + [[k] + rest for rest in sums(n - k, m) if rest == [] or rest[0] != k]
+    return result
 ```
 
-（待跑）
+**思路**
+
+- 划分维度：**首元素 `k` 取 1..m 中的哪个值**。取值个数 = m，与输入规模无关但由参数 `m` 决定，写不成固定 if 链 → 用 `for` 把 m 条分支展开（对照 Q1/Q2 的固定 2 支用 if）
+- 选定 `k` 后，`rest` 要有三条性质：和为 `n-k`、元素 ≤ `m`、内部相邻不同——这三条恰好是 `sums(n - k, m)` 的定义，直接拿它的返回值当候选
+- 第四条约束是**拼上去才出现的**：`k` 会紧挨着 `rest[0]`，所以必须 `rest[0] != k`，递归自己不知道这件事
+- `rest == []` 放在 `or` 左边是为了短路：`k == n` 时 `sums(0, m)` 返回 `[[]]`，rest 为空，若先算 `rest[0]` 会 `IndexError`。而这条分支正好给出 `[k]` 本身，如 `sums(5, 5)` 里的 `[5]`
+- `sums(n - k, m)` 的 `m` 不变：`m` 是「允许的最大值」这个上限，不是剩余额度；每层只把 `n` 减小 `k`
+- base case 必须是两段：`n < 0` 表示超过目标、无解 → `[]`；`n == 0` 表示恰好拆完、只有「什么都不加」这一种拆法 → `[[]]`。合并成 `n <= 0` 会把「无解」误判成「有解」
+- `result + [...]` 是把 k=1、k=2、…、k=m 各组结果**首尾相接**，得到扁平的结果列表
+
+**关联知识点**
+
+- 列表推导式（Lec 10 · Sequences）在这里的角色：**展开参数化的 m 条分支**，同时做筛选（`if` 部分）和变换（`[k] + rest`）
+- 列表拼接：`[k] + rest` 造新列表，`result + group` 拼接列表的列表；两者都是 `+`，但操作对象层级不同
+- 与 Q1/Q2 的分支数对照：Q1「上/右」2 支（if）、Q2「用/不用首元素」2 支（if + max）、Q3「首元素取哪个」m 支（for + 推导式）——**分支数由维度决定，表达方式由分支数是否固定决定**
+- 与 [[Homework 3 - Recursion, Tree Recursion]] Q4 `count_dollars` 同源：都是「按第一个选择分类」，那边累加计数（`+`），这边拼接具体方案（`+` 列表）
+
+**易错点**
+
+- 把两个 base case 合并成 `n <= 0`：`sums(5, 1)` 会返回 `[[]]` 而不是 `[]`，因为「拆过头」被当成了「拆完」
+- `rest == []` 写在 `or` 右边：rest 为空时先算 `rest[0]` → `IndexError`
+- 漏掉 `rest[0] != k`：会出现 `[2, 2, 1]` 这类相邻重复，`sums(5, 3)` 的 `k=2` 组会多出 `[2,2,1]`
+- 用 `result.append([[k] + rest ...])`：`append` 把整组当成一个元素塞进去，结果多一层嵌套；要拼接子列表应写 `result = result + [...]` 或 `result.extend([...])`
+- 递归写成 `sums(n - k, k)`：把上限也缩小了，会漏掉「后面出现比 k 大的数」的所有方案（如 `sums(5, 3)` 里 `k=1` 之后的 `3`）
+- 忘记 `return result`：循环跑完返回 `None`
 
 ***
 
@@ -257,14 +358,31 @@ python3 ok -q sums
 
 ***
 
+## 验收
+
+| 题号 | 状态 |
+| -- | -- |
+| Q1 | 完成（手推 4 个 doctest 通过，Disc 无 ok） |
+| Q2 | 完成（手推 3 个 doctest 通过，Disc 无 ok） |
+| Q3 | 完成（doctest 5/5 通过：`failed=0, attempted=5`） |
+
+***
+
 ## 本次踩的坑
 
-- （待补）
+- **`&` 当 `and` 用**：`a == m & b == n` 解析成 `a == (m & b) == n`，因为 `&` 优先级高于 `==`。比较条件一律用 `and`/`or`，`&`/`|` 只用于位运算 → 可升级进 `Common_Pitfalls.md`（Python 运算符优先级）
+- **起点写成 `(0, 0)`**：坐标 1-based 的题，递归起点必须跟题目叙述一致；用 `paths(2, 2) == 2` 这种小样例自查一步就能发现
+- **递归启动名写错**：嵌套 helper 时 `return path(1, 1)`，别写成 `return paths(1, 1)`——后者会重新定义 helper 并重置状态
+- **乘法递归的 base case 是 1 不是 0**：空乘法的单位元是 1（`1` 乘任何数不变），空加法的单位元才是 0。写 `return 0` 会让 `max_product` 全返回 0 → 可升级进 `Common_Pitfalls.md`
+- **分支数由划分维度决定**：Q1「上/右」2 支、Q2「用/不用首元素」2 支、Q3「首元素取 1..m」m 支。写代码前先问「维度是什么、有几个取值」
+- **`or` 的短路顺序要用上**：`rest == [] or rest[0] != k` 里，空列表判断必须在前，否则 `rest[0]` 先求值直接 `IndexError`
+- **`append` 和 `+` 的层级差**：`result.append(group)` 会把整组塞成一个元素（多一层嵌套），`result + group` 才是首尾相接
+- **base case 不能贪合并**：`n < 0 → []` 和 `n == 0 → [[]]` 语义相反，写成 `n <= 0` 会把「无解」当成「空解」
 
 ***
 
 ## 相关概念
 
-- [[Discussion 3 - Recursion]] — 同一个递归三段式，Disc 3 是单分支链式，Disc 4 升级成多分支树
+- \[\[Discussion 3 - Recursion]] — 同一个递归三段式，Disc 3 是单分支链式，Disc 4 升级成多分支树
 - [[Homework 3 - Recursion, Tree Recursion]] — Q4 `count_dollars` 与 Q2 `max_product` 都是「含首元素 / 不含首元素」的二元划分
 - [[Lab 3 - Recursion, Python Lists]] — Q2/Q3 用到的 `s[1:]`、`[k] + s` 正是 Lab 3 前半段练的列表操作

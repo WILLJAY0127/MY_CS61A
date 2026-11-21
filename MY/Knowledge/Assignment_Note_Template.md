@@ -38,7 +38,7 @@ due: 2024-09-11
 ```
 
 - `solution`：Lab/HW/Disc 写官方解答路径；Project 写 `none`（没有官方参考实现）
-- `code`：Disc 没有代码文件时写 `none`
+- `code`：Lab/HW/Project 写主代码文件路径；Disc 代码写在笔记答案区，固定写 `none`
 - `lectures`：多个用逗号分隔，如 `Lec03, Lec04`
 
 ---
@@ -61,6 +61,7 @@ H1  官方标题（全文唯一）
 - **二级分组必须保留**：`What Would Python Display?`、`Coding Practice` 等不能省略
 - 官方没有的区块只出现在文档首尾：开头 `## 总起`，结尾 `## 验收`、`## 本次踩的坑`、`## 相关概念`
 - 纯行政区块（`Submit Assignment`、问卷链接）整块省略
+- Disc 无 ok：题内不设 `**验证**` 区块，也没有 `Check Your Score Locally`（见第 8 节）
 - 全文只能有一个 H1
 - 题内固定小节（原题/中文/答案/验证/思路…）只用加粗标签，不占标题层级
 - 题号用官方编号，不重排
@@ -384,3 +385,17 @@ python ok -q <测试名> -u
 - [ ] 每题都有「原题（English）」和「> **中文**：」
 - [ ] 未做的题没有预填答案
 - [ ] 验收结果已记录
+- [ ] Disc：题内无验证区块、无 Check Your Score（见第 8 节）
+
+---
+
+## 8. Disc 类型的特殊规则（无 ok，不验证）
+
+Disc 页面没有 zip、没有 `ok`、没有分数——官方只发 PDF + 解答页。且官方 Getting Started 原话："don't use a Python interpreter until you are confident... check your work by *thinking*"——讨论课练的是推理，不验证是官方设计意图。
+
+规则：
+
+- 题内 `**验证**` 区块整体省略；`## Check Your Score Locally` 不出现
+- 完成状态记在结尾 `## 验收`：每题一行「题号 / 状态」，不写分数
+- frontmatter `code: none`（代码直接写在笔记答案区）
+- 可选抽查：官方 starter 的 docstring 自带 doctest，想核对时把函数贴进临时文件跑 `python -m doctest`，结果不写进笔记
